@@ -1,0 +1,39 @@
+﻿@model Furiza.eCipaOnContainers.RazorPages.RestClients.Cipas.Reunioes.ReunioesGetAtasAssuntosAlteracoesResult
+
+@if (Model.Alteracoes == null)
+{
+    <partial name="_NenhumaOcorrenciaParaExibicaoPartial" />
+}
+else
+{
+    <div>
+        <ul class="timeline timeline-inverse">
+            <li class="time-label">
+                <span class="bg-gray">
+                    Retificações
+                </span>
+            </li>
+
+            @foreach (var alteracao in Model.Alteracoes)
+            {
+                <li>
+                    <i class="fa fa-commenting" style="background-color: #222d32; color: #ffffff"></i>
+
+                    <div class="timeline-item">
+                        <span class="time"><i class="fa fa-clock-o"></i> @alteracao.CreationDate.Value.ToLocalTime()</span>
+
+                        <h3 class="timeline-header"><b>@alteracao.CreationUser</b> versão @alteracao.Versao</h3>
+
+                        <div class="timeline-body">
+                            @alteracao.Descricao
+                        </div>
+                    </div>
+                </li>
+            }
+
+            <li>
+                <i class="fa fa-clock-o bg-gray"></i>
+            </li>
+        </ul>
+    </div>
+}

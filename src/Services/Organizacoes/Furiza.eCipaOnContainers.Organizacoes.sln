@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29201.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Furiza.eCipaOnContainers.Organizacoes.Domain", "Furiza.eCipaOnContainers.Organizacoes.Domain\Furiza.eCipaOnContainers.Organizacoes.Domain.csproj", "{04BF3B06-9F76-46CC-B5E2-7B8161F999F0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Furiza.eCipaOnContainers.Organizacoes.Application", "Furiza.eCipaOnContainers.Organizacoes.Application\Furiza.eCipaOnContainers.Organizacoes.Application.csproj", "{F035AA1E-CF18-4255-9E35-628B50840743}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Tests", "0 - Tests", "{D6FC46B4-423A-49F4-9B97-76FA6FCD43B7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Core", "1 - Core", "{0F7E3007-E862-49BD-AA3F-8F61242F5A19}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Infrastructure", "2 - Infrastructure", "{B545E15E-6B1D-4E82-B9A6-2DE2E05694F5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Service", "3 - Service", "{211A3095-6727-40C8-8712-2D20CE317D6A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Furiza.eCipaOnContainers.Organizacoes.Infrastructure.EFCore", "Furiza.eCipaOnContainers.Organizacoes.Infrastructure.EFCore\Furiza.eCipaOnContainers.Organizacoes.Infrastructure.EFCore.csproj", "{B7E11FB8-CD51-4788-98CC-2F497EB69DAF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Furiza.eCipaOnContainers.Organizacoes.WebApi", "Furiza.eCipaOnContainers.Organizacoes.WebApi\Furiza.eCipaOnContainers.Organizacoes.WebApi.csproj", "{C42E4CA8-DE2D-43E0-AA7D-751B961FA416}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04BF3B06-9F76-46CC-B5E2-7B8161F999F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04BF3B06-9F76-46CC-B5E2-7B8161F999F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04BF3B06-9F76-46CC-B5E2-7B8161F999F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04BF3B06-9F76-46CC-B5E2-7B8161F999F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F035AA1E-CF18-4255-9E35-628B50840743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F035AA1E-CF18-4255-9E35-628B50840743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F035AA1E-CF18-4255-9E35-628B50840743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F035AA1E-CF18-4255-9E35-628B50840743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7E11FB8-CD51-4788-98CC-2F497EB69DAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7E11FB8-CD51-4788-98CC-2F497EB69DAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7E11FB8-CD51-4788-98CC-2F497EB69DAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7E11FB8-CD51-4788-98CC-2F497EB69DAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C42E4CA8-DE2D-43E0-AA7D-751B961FA416}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C42E4CA8-DE2D-43E0-AA7D-751B961FA416}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C42E4CA8-DE2D-43E0-AA7D-751B961FA416}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C42E4CA8-DE2D-43E0-AA7D-751B961FA416}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{04BF3B06-9F76-46CC-B5E2-7B8161F999F0} = {0F7E3007-E862-49BD-AA3F-8F61242F5A19}
+		{F035AA1E-CF18-4255-9E35-628B50840743} = {0F7E3007-E862-49BD-AA3F-8F61242F5A19}
+		{B7E11FB8-CD51-4788-98CC-2F497EB69DAF} = {B545E15E-6B1D-4E82-B9A6-2DE2E05694F5}
+		{C42E4CA8-DE2D-43E0-AA7D-751B961FA416} = {211A3095-6727-40C8-8712-2D20CE317D6A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C7CC6997-9A31-49EC-9F17-9006A338CB31}
+	EndGlobalSection
+EndGlobal

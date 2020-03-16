@@ -1,0 +1,61 @@
+﻿@page
+@model GerenciarParticipantesConvidadosModel
+@{
+    Layout = null;
+}
+
+<div class="box box-widget blockableDiv" style="margin-bottom: 0; box-shadow: 0 0 0 0">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-url="/Reunioes/Atas/GerenciarParticipantesConvidados" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input asp-for="ReuniaoId" type="hidden" value="@Model.ReuniaoId" />
+        <input asp-for="AtaId" type="hidden" value="@Model.AtaId" />
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group has-feedback">
+                        <input asp-for="ReunioesAtasParticipantesConvidadosPost.NomeCompleto" type="text" class="form-control" placeholder="Nome Completo">
+                        <span class="glyphicon glyphicon-pencil form-control-feedback"></span>
+                        <span asp-validation-for="ReunioesAtasParticipantesConvidadosPost.NomeCompleto" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group has-feedback">
+                        <input asp-for="ReunioesAtasParticipantesConvidadosPost.Email " type="text" class="form-control" placeholder="Email ">
+                        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                        <span asp-validation-for="ReunioesAtasParticipantesConvidadosPost.Email " style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group has-feedback">
+                        <input asp-for="ReunioesAtasParticipantesConvidadosPost.Organizacao" type="text" class="form-control" placeholder="Órgão/Empresa">
+                        <span class="glyphicon glyphicon-flag form-control-feedback"></span>
+                        <span asp-validation-for="ReunioesAtasParticipantesConvidadosPost.Organizacao" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group has-feedback">
+                        <input asp-for="ReunioesAtasParticipantesConvidadosPost.Funcao" type="text" class="form-control" placeholder="Função">
+                        <span class="glyphicon glyphicon-pawn form-control-feedback"></span>
+                        <span asp-validation-for="ReunioesAtasParticipantesConvidadosPost.Funcao" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12">
+                    <button class="btn btn-xs btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                        <i class="fa fa-check"></i>
+                        Concluir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(function () {
+        applyPaceOnAjaxFormSubmit();
+        applyLayoutOnCommonUIElements();
+    });
+</script>

@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29201.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Furiza.eCipaOnContainers.Cipas.Domain", "Furiza.eCipaOnContainers.Cipas.Domain\Furiza.eCipaOnContainers.Cipas.Domain.csproj", "{374CED14-E159-4040-8FBB-5B203DA4F0C0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Furiza.eCipaOnContainers.Cipas.Application", "Furiza.eCipaOnContainers.Cipas.Application\Furiza.eCipaOnContainers.Cipas.Application.csproj", "{7EA2395C-166A-4F4E-B32B-665643549239}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Furiza.eCipaOnContainers.Cipas.Infrastructure.EntityFrameworkCore", "Furiza.eCipaOnContainers.Cipas.Infrastructure.EntityFrameworkCore\Furiza.eCipaOnContainers.Cipas.Infrastructure.EntityFrameworkCore.csproj", "{ADC10634-CBF9-4F74-9398-391D97741B70}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Furiza.eCipaOnContainers.Cipas.WebApi", "Furiza.eCipaOnContainers.Cipas.WebApi\Furiza.eCipaOnContainers.Cipas.WebApi.csproj", "{D631C658-B505-463B-91FD-1B2D97A8A97B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Tests", "0 - Tests", "{84B8776C-43A9-4BCC-BEB0-CE326C8262D6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Core", "1 - Core", "{0B8CD1E1-6862-4A45-809B-9AA14CD2340E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Infrastructure", "2 - Infrastructure", "{3A0399B2-C545-443B-A29B-58E352A98D7A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Service", "3 - Service", "{49DDB6BC-5F9C-45D7-A216-EEFA6AE7CAC5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{374CED14-E159-4040-8FBB-5B203DA4F0C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{374CED14-E159-4040-8FBB-5B203DA4F0C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{374CED14-E159-4040-8FBB-5B203DA4F0C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{374CED14-E159-4040-8FBB-5B203DA4F0C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EA2395C-166A-4F4E-B32B-665643549239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EA2395C-166A-4F4E-B32B-665643549239}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EA2395C-166A-4F4E-B32B-665643549239}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EA2395C-166A-4F4E-B32B-665643549239}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADC10634-CBF9-4F74-9398-391D97741B70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADC10634-CBF9-4F74-9398-391D97741B70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADC10634-CBF9-4F74-9398-391D97741B70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADC10634-CBF9-4F74-9398-391D97741B70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D631C658-B505-463B-91FD-1B2D97A8A97B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D631C658-B505-463B-91FD-1B2D97A8A97B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D631C658-B505-463B-91FD-1B2D97A8A97B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D631C658-B505-463B-91FD-1B2D97A8A97B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{374CED14-E159-4040-8FBB-5B203DA4F0C0} = {0B8CD1E1-6862-4A45-809B-9AA14CD2340E}
+		{7EA2395C-166A-4F4E-B32B-665643549239} = {0B8CD1E1-6862-4A45-809B-9AA14CD2340E}
+		{ADC10634-CBF9-4F74-9398-391D97741B70} = {3A0399B2-C545-443B-A29B-58E352A98D7A}
+		{D631C658-B505-463B-91FD-1B2D97A8A97B} = {49DDB6BC-5F9C-45D7-A216-EEFA6AE7CAC5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {96E39920-77FF-4148-902D-B20381BE4ED9}
+	EndGlobalSection
+EndGlobal

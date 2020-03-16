@@ -1,0 +1,33 @@
+﻿@model System.Guid
+
+<div id="divLocalizarEstabelecimento">
+    <form method="get" data-ajax="true" data-ajax-method="get" data-ajax-url="/Cipas/GerenciarEstabelecimentos" data-ajax-begin='blockDivForAjaxRequest("divLocalizarEstabelecimento")' data-ajax-complete='unblockDivForAjaxRequest("divLocalizarEstabelecimento")' data-ajax-update="#divAdicionarEstabelecimento" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input id="cipaId" name="cipaId" type="hidden" value="@Model" />
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-5">
+                <div class="form-group has-feedback">
+                    <input id="codigo" name="codigo" type="text" class="form-control" placeholder="Código Único de Identificação (ou parte dele)">
+                    <span class="glyphicon glyphicon-qrcode form-control-feedback"></span>
+                </div>
+            </div>
+
+            <div class="col-xs-9 col-sm-5">
+                <div class="form-group has-feedback">
+                    <input id="nome" name="nome" type="text" class="form-control" placeholder="Nome Completo (ou parte dele)">
+                    <span class="glyphicon glyphicon-console form-control-feedback"></span>
+                </div>
+            </div>
+
+            <div class="col-xs-3 col-sm-2">
+                <div class="form-group has-feedback">
+                    <button class="btn btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                        <i class="fa fa-search-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="divAdicionarEstabelecimento"></div>

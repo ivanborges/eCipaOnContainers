@@ -1,0 +1,42 @@
+﻿@page
+@model GerenciarParticipantesModel
+@{
+    Layout = null;
+}
+
+@if (Model.Membros == null)
+{
+    <partial name="_NenhumaOcorrenciaParaExibicaoPartial" />
+}
+else
+{
+    <div class="box box-widget blockableDiv" style="margin-bottom: 0; box-shadow: 0 0 0 0">
+        <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-url="/Reunioes/Atas/GerenciarParticipantes" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+            <input asp-for="ReuniaoId" type="hidden" value="@Model.ReuniaoId" />
+            <input asp-for="AtaId" type="hidden" value="@Model.AtaId" />
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <select asp-for="Usernames" asp-items="@(new SelectList(Model.Membros, "UserName", "NomeCompleto"))" class="form-control select2" multiple="multiple" data-placeholder="Membros da Cipa" style="width: 100%;"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <button class="btn btn-xs btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                            <i class="fa fa-check"></i>
+                            Concluir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        $(function () {
+            applyPaceOnAjaxFormSubmit();
+            applyLayoutOnCommonUIElements();
+        });
+    </script>
+}

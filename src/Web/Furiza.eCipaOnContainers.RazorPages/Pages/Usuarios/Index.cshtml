@@ -1,0 +1,220 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Usuários";
+
+    var usuarios = Model?.UsersGetManyResult?.Users?.Where(u => !u.Claims.Any(c => c.Type == Furiza.Base.Core.Identity.Abstractions.FurizaClaimNames.SystemUser));
+}
+
+@if (usuarios == null || !usuarios.Any())
+{
+    <partial name="_NenhumaOcorrenciaParaExibicaoPartial" />
+}
+else
+{
+    <div class="box">
+        <div class="box-body" id="divUsuarios">
+            <table id="tableResult" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 1px"></th>
+                        <th>Username</th>
+                        <th class="hidden-xs">Nome Completo</th>
+                        <th>Email</th>
+                        <th class="hidden-xs hidden-sm hidden-md">Empresa</th>
+                        <th class="hidden-xs hidden-sm">Órgão</th>
+                        <th class="hidden-xs">Role</th>
+                        <th style="width: 1px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in usuarios)
+                    {
+                        <tr data-username="@user.UserName">
+                            <td style="vertical-align: middle; text-align: center;" class="action-buttons">
+                                @if (user.IsEmailConfirmed && !user.IsLockedOut && user.Roles.Any())
+                                {
+                                    <span style="display: none">1. acesso regular</span>
+
+                                    <a style="color: #69b96b;" data-toggle="tooltip" title="Acesso regular!">
+                                        <i class="fa fa-thumbs-up"></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span style="display: none">2. acesso bloqueado</span>
+
+                                    var motivosBloqueio = new List<string>();
+
+                                    if (!user.IsEmailConfirmed)
+                                    {
+                                        <span style="display: none">3. pendente de confirmação</span>
+                                        motivosBloqueio.Add("Email pendente de confirmação.");
+                                    }
+
+                                    if (user.IsLockedOut)
+                                    {
+                                        <span style="display: none">4. conta suspensa</span>
+                                        motivosBloqueio.Add("Conta suspensa.");
+                                    }
+
+                                    if (!user.Roles.Any())
+                                    {
+                                        <span style="display: none">5. nenhuma role atribuída</span>
+                                        motivosBloqueio.Add("Nenhuma role atribuída.");
+                                    }
+
+                                    <a style="color: #f9754d;" data-toggle="tooltip" title="Acesso bloqueado! Motivo(s): @string.Join(" ", motivosBloqueio)">
+                                        <i class="fa fa-thumbs-down"></i>
+                                    </a>
+                                }
+                            </td>
+                            <td>@user.UserName</td>
+                            <td class="hidden-xs">@user.FullName</td>
+                            <td class="action-buttons">@user.Email</td>
+                            <td class="hidden-xs hidden-sm hidden-md">@user.Company</td>
+                            <td class="hidden-xs hidden-sm">@user.Department?.PadLeft(4, '0')</td>
+                            <td class="hidden-xs" style="padding-top: 2px; padding-bottom: 2px">
+                                <select asp-for="@user.Roles.FirstOrDefault().RoleName" class="form-control input-sm handleAlterarRole" style="width: 100%" data-current-role="@user.Roles.FirstOrDefault()?.RoleName">
+                                    <option></option>
+                                    <option value="@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Viewer">@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Viewer</option>
+                                    <option value="@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Editor">@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Editor</option>
+                                    <option value="@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Administrator">@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Administrator</option>
+                                </select>
+                            </td>
+                            <td style="padding-top: 3px; padding-bottom: 3px; padding-right: 5px; padding-left: 5px">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-default bg-purple dropdown-toggle" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu" style="min-width: 30px">
+                                        <li>
+                                            <a href="#" data-ajax-anchor="handleConfirmResetarSenha('@user.UserName')" style="color: #f39c12; padding-left: 0; padding-right: 0; text-align: center" data-toggle="tooltip" title="Resetar Senha">
+                                                <i class="fa fa-key" style="margin-right: 0;"></i>
+                                            </a>
+                                        </li>
+
+                                        @if (!user.IsEmailConfirmed)
+                                        {
+                                            <li>
+                                                <a href="#" data-ajax-anchor="handleConfirmConfirmarEmail('@user.UserName')" style="color: #222d32; padding-left: 0; padding-right: 0; text-align: center" data-toggle="tooltip" title="Confirmar Email">
+                                                    <i class="fa fa-envelope-open" style="margin-right: 0;"></i>
+                                                </a>
+                                            </li>
+                                        }
+
+                                        @if (!user.IsLockedOut)
+                                        {
+                                            <li>
+                                                <a href="#" data-ajax-anchor="handleConfirmBloquear('@user.UserName')" style="color: #f39c12; padding-left: 0; padding-right: 0; text-align: center" data-toggle="tooltip" title="Bloquear">
+                                                    <i class="fa fa-lock" style="margin-right: 0;"></i>
+                                                </a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li>
+                                                <a href="#" data-ajax-anchor="handleConfirmDesbloquear('@user.UserName')" style="color: #f39c12; padding-left: 0; padding-right: 0; text-align: center" data-toggle="tooltip" title="Desbloquear">
+                                                    <i class="fa fa-unlock" style="margin-right: 0;"></i>
+                                                </a>
+                                            </li>
+                                        }
+
+                                        <li>
+                                            <a href="#" data-ajax-anchor="handleConfirmExcluir('@user.UserName')" style="color: #f9754d; padding-left: 0; padding-right: 0; text-align: center" data-toggle="tooltip" title="Excluir">
+                                                <i class="fa fa-times" style="margin-right: 0;"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @section Styles {
+        <link href="~/admin-lte/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    }
+
+    @section Scripts {
+        <script src="~/admin-lte/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="~/admin-lte/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="~/custom/js/settings-datatable.min.js"></script>
+        <script>
+            $(function () {
+                $('.handleAlterarRole').on('focusin', function(){
+                    $(this).data('current-role', $(this).val());
+                }).on('change', function () {
+                    var select = $(this);
+                    var username = select.closest('tr').data('username');
+                    var roleAnterior = select.data('current-role');
+                    var roleSelecionada = select.val();
+
+                    makeAjaxRequestWithPace("divUsuarios", "?handler=AlterarRole", "POST", {
+                        username: username,
+                        currentRole: roleAnterior,
+                        newRole: roleSelecionada
+                    }, function () {
+                            select.data('current-role', roleSelecionada);
+                    });
+                });
+
+                applyDataTable("tableResult", true, 25);
+            });
+
+            handleConfirmResetarSenha = function (username) {
+                confirmOperation("Você está resetando a senha deste usuário e esta operação invalidará imediatamente a senha atual. A nova senha gerada será enviada para o email cadastrado e ainda será exibida após a confirmação uma única vez na tela a seguir.", function () {
+                    makeAjaxRequestWithPace("divUsuarios", "?handler=ResetarSenha", "POST", {
+                        username: username
+                    }, function (result) {
+                        alertSuccess("A senha do usuário foi resetada e agora sua senha atual é: <b>" + result.newPassword + "</b>");
+                    });
+                });
+            };
+
+            handleConfirmConfirmarEmail = function (username) {
+                confirmOperation("Você está confirmando, no lugar do usuário, que o email associado a esta conta possui um endereço válido.", function () {
+                    makeAjaxRequestWithPace("divUsuarios", "?handler=ConfirmEmail", "POST", {
+                        username: username
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmBloquear = function (username) {
+                confirmOperation("Você está bloqueando esta conta e esta operação revogará imediatamente o acesso do usuário à aplicação. Esta operação poderá ser revertida posteriormente através do desbloqueio manual.", function () {
+                    makeAjaxRequestWithPace("divUsuarios", "?handler=Lock", "POST", {
+                        username: username
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmDesbloquear = function (username) {
+                confirmOperation("Você está desbloqueando esta conta e esta operação devolverá imediatamente o acesso do usuário à aplicação.", function () {
+                    makeAjaxRequestWithPace("divUsuarios", "?handler=Unlock", "POST", {
+                        username: username
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmExcluir = function (username) {
+                confirmOperation("Você está excluindo permanentemente esta conta de usuário e esta operação não poderá ser desfeita.", function () {
+                    makeAjaxRequestWithPace("divUsuarios", "?handler=Delete", "POST", {
+                        username: username
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+        </script>
+    }
+}

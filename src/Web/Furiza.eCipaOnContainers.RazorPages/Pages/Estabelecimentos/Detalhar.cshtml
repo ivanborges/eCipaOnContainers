@@ -1,0 +1,161 @@
+﻿@page "{id}"
+@model DetalharModel
+@inject Furiza.Base.Core.Identity.Abstractions.IUserPrincipalBuilder userPrincipalBuilder
+@{
+    ViewData["Title"] = "Estabelecimentos > Detalhar";
+}
+
+@if (Model.EstabelecimentosGetResult != null)
+{
+    <div id="divEstabelecimentoHeader" class="box box-widget widget-user" style="margin-bottom: 0px" data-estabelecimentoid="@Model.EstabelecimentosGetResult.Id">
+        @{
+            var headerColor = "";
+            var headerBgColor = "";
+
+            if (Model.EstabelecimentosGetResult.Status == RestClients.Organizacoes.StatusAtividade.Ativo)
+            {
+                headerColor = "#b8c7ce";
+                headerBgColor = "#222d32";
+            }
+            else
+            {
+                headerColor = "#222d32";
+                headerBgColor = "#b8c7ce";
+            }
+        }
+
+        <div class="widget-user-header" style="background-color: @headerBgColor; color: @headerColor; height: 90px">
+            <h3 class="widget-user-username">@Model.EstabelecimentosGetResult.Nome</h3>
+            <h5 class="widget-user-desc">@Model.EstabelecimentosGetResult.Codigo</h5>
+        </div>
+        <div class="widget-user-image" style="top: 20px; margin-left: -60px">
+            <img class="img-responsive img-circle" src="~/custom/img/estabelecimento120px.png" style="width: 120px">
+        </div>
+        <div class="box-footer" style="padding-bottom: 0px; min-height: 60px">
+            <div class="box-tools pull-right action-buttons">
+                @{
+                    var botaoStatusIcon = "";
+                    var botaoStatusLabel = "";
+
+                    if (Model.EstabelecimentosGetResult.Status == RestClients.Organizacoes.StatusAtividade.Ativo)
+                    {
+                        botaoStatusIcon = "power-off";
+                        botaoStatusLabel = "Inativar";
+                    }
+                    else
+                    {
+                        botaoStatusIcon = "plug";
+                        botaoStatusLabel = "Ativar";
+                    }
+
+                    if (userPrincipalBuilder.HasEditorRights())
+                    {
+                        <a href="#" data-ajax-anchor="handleConfirmAlternarStatusAtividade()" class="btn btn-box-tool" data-toggle="tooltip" title="@botaoStatusLabel">
+                            <i class="fa fa-@botaoStatusIcon"></i>
+                        </a>
+
+                        <a asp-page="/Estabelecimentos/Editar" asp-route-id="@Model.EstabelecimentosGetResult.Id" class="btn btn-box-tool" data-toggle="tooltip" title="Editar">
+                            <i class="fa fa-pencil"></i>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="box box-widget">
+        <div class="box-footer no-padding">
+            <ul class="nav nav-pills nav-stacked">
+                <li>
+                    <a>
+                        @{
+                            var labelStatusClass = string.Empty;
+
+                            if (Model.EstabelecimentosGetResult.Status == RestClients.Organizacoes.StatusAtividade.Ativo)
+                            {
+                                labelStatusClass = "label-success";
+                            }
+                            else
+                            {
+                                labelStatusClass = "label-warning";
+                            }
+                        }
+
+                        <b>Status</b>
+                        <span class="label @labelStatusClass pull-right" style="font-size: 14px">@Model.EstabelecimentosGetResult.Status</span>
+                    </a>
+                </li>
+                <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                    @{
+                        var cipaAtual = Model.EstabelecimentosCipasGetResult?.Cipas?.FirstOrDefault(c => c.Status == Furiza.eCipaOnContainers.RazorPages.RestClients.Organizacoes.StatusAtividade.Ativo);
+                        if (cipaAtual != null)
+                        {
+                            <b>
+                                Cipa Atual
+                            </b>
+
+                            <span class="pull-right" style="font-size: 14px; font-weight: bold">
+                                <a asp-page="/Cipas/Detalhar" asp-route-id="@cipaAtual.Id">
+                                    @cipaAtual.Codigo
+                                </a>
+                            </span>
+                        }
+                        else
+                        {
+                            <b>Cipa Atual</b>
+                            <span class="label label-warning pull-right" style="font-size: 14px">não definida</span>
+                        }
+                    }
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    @* //TODO: criar posteriormente um método na api de estabelecimentos que traz as cipas anteriores do estabelcimento a partir da tabela HistoricoEstabelecimentos *@
+    @*<div class="box box-widget">
+        <div class="box-header">
+            @{
+                var totalCipasAnteriores = Model.EstabelecimentosCipasGetResult?.Cipas?.Where(c => c.Status == Furiza.eCipaOnContainers.RazorPages.RestClients.Organizacoes.StatusAtividade.Inativo).Count() ?? 0;
+            }
+            <h3 class="box-title">Cipas Anteriores (@totalCipasAnteriores)</h3>
+
+            <div class="box-tools pull-right action-buttons">
+                <a class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="box-footer no-padding">
+            <ul class="nav nav-pills nav-stacked">
+                @if (totalCipasAnteriores > 0)
+                {
+                    foreach (var cipaAnterior in Model.EstabelecimentosCipasGetResult.Cipas.Where(c => c.Status == Furiza.eCipaOnContainers.RazorPages.RestClients.Organizacoes.StatusAtividade.Inativo))
+                    {
+                        <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                            <b>
+                                <a asp-page="/Cipas/Detalhar" asp-route-id="@cipaAnterior.Id">
+                                    @cipaAnterior.Codigo
+                                </a>
+                            </b>
+
+                            <span class="label label-warning pull-right" style="font-size: 14px">@cipaAnterior.CreationDate?.ToString("dd/MM/yyyy")</span>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>*@
+
+    <script>
+        handleConfirmAlternarStatusAtividade = function () {
+            confirmOperation("Você está alterando o status de atividade deste estabelecimento.", function () {
+                makeAjaxRequestWithPace("divEstabelecimentoHeader", "?handler=AlternarStatusDeAtividade", "POST", {
+                    estabelecimentoId: $("[data-estabelecimentoid]").data("estabelecimentoid")
+                }, function () {
+                    location.reload();
+                });
+            });
+        };
+    </script>
+}

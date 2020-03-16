@@ -1,0 +1,61 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Estabelecimentos";
+}
+
+<div class="box blockableDiv" style="margin-bottom: 0px">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-url='@Url.Page(pageName: "", pageHandler: "EstabelecimentosPartial")' data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="applyDataTable('tableResult', true, 25)" data-ajax-update="#divResult" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group has-feedback">
+                        <input asp-for="EstabelecimentosGetMany.Codigo" type="text" class="form-control" placeholder="Código Único de Identificação (ou parte dele)">
+                        <span class="glyphicon glyphicon-qrcode form-control-feedback"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group has-feedback">
+                        <input asp-for="EstabelecimentosGetMany.Nome" type="text" class="form-control" placeholder="Nome Completo (ou parte dele)">
+                        <span class="glyphicon glyphicon-console form-control-feedback"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group">
+                        <select asp-for="EstabelecimentosGetMany.Status" asp-items="Html.GetEnumSelectList<Furiza.eCipaOnContainers.RazorPages.RestClients.Cipas.StatusAtividade>()" class="form-control select2" data-placeholder="Status"></select>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group">
+                        <button class="btn btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                            <i class="fa fa-search"></i>
+                            Pesquisar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="divResult"></div>
+
+@section Styles {
+    <link href="~/admin-lte/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="~/admin-lte/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin-lte/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/custom/js/settings-datatable.min.js"></script>
+    <script>
+        $(function () {
+            $("#EstabelecimentosGetMany_Status").val(1);
+            $("#EstabelecimentosGetMany_Status").trigger('change');
+            $("[data-submit-ajaxform-pace]").click();
+        });
+    </script>
+}

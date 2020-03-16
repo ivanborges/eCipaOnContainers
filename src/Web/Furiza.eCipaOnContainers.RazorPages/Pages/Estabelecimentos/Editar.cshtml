@@ -1,0 +1,37 @@
+﻿@page "{id}"
+@model Furiza.eCipaOnContainers.RazorPages.Pages.Estabelecimentos.EditarModel
+@{
+    ViewData["Title"] = "Estabelecimentos > Editar";
+}
+
+<div class="box blockableDiv">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input asp-for="EstabelecimentoId" type="hidden" value="@Model.EstabelecimentoId"/>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group has-feedback">
+                        <input asp-for="EstabelecimentosPut.Codigo" type="text" class="form-control" placeholder="Código Único de Identificação">
+                        <span class="glyphicon glyphicon-qrcode form-control-feedback"></span>
+                        <span asp-validation-for="EstabelecimentosPut.Codigo" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-6">
+                    <div class="form-group has-feedback">
+                        <input asp-for="EstabelecimentosPut.Nome" type="text" class="form-control" placeholder="Nome Completo">
+                        <span class="glyphicon glyphicon-console form-control-feedback"></span>
+                        <span asp-validation-for="EstabelecimentosPut.Nome" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-footer">
+            <button class="btn btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                <i class="fa fa-check"></i>
+                Concluir
+            </button>
+        </div>
+    </form>
+</div>

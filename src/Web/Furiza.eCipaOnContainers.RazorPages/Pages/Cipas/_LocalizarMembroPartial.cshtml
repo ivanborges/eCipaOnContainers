@@ -1,0 +1,33 @@
+﻿@model System.Guid
+
+<div id="divLocalizarMembro">
+    <form method="get" data-ajax="true" data-ajax-method="get" data-ajax-url="/Cipas/GerenciarMembros" data-ajax-begin='blockDivForAjaxRequest("divLocalizarMembro")' data-ajax-complete='unblockDivForAjaxRequest("divLocalizarMembro")' data-ajax-update="#divAdicionarMembro" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input id="cipaId" name="cipaId" type="hidden" value="@Model" />
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-5">
+                <div class="form-group has-feedback">
+                    <input id="username" name="username" type="text" class="form-control" placeholder="Username">
+                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                </div>
+            </div>
+
+            <div class="col-xs-9 col-sm-5">
+                <div class="form-group has-feedback">
+                    <input id="email" name="email" type="email" class="form-control" placeholder="Email">
+                    <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                </div>
+            </div>
+
+            <div class="col-xs-3 col-sm-2">
+                <div class="form-group has-feedback">
+                    <button class="btn btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                        <i class="fa fa-search-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="divAdicionarMembro"></div>

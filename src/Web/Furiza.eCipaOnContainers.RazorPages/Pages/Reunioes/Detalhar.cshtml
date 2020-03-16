@@ -1,0 +1,1360 @@
+﻿@page "{id}"
+@model DetalharModel
+@inject Furiza.Base.Core.Identity.Abstractions.IUserPrincipalBuilder userPrincipalBuilder
+@{
+    ViewData["Title"] = "Reuniões > Detalhar";
+}
+
+@if (Model.ReunioesGetResult != null)
+{
+    <div id="divReuniaoHeader" class="info-box" style="margin-bottom: 0px" data-reuniaoid="@Model.ReunioesGetResult.Id">
+        @{
+            if (Model.ReunioesGetResult.Extraordinaria.HasValue && Model.ReunioesGetResult.Extraordinaria.Value)
+            {
+                <span class="info-box-icon" style="background-color: #222d32; color: #dd4b39; line-height: 22px"><span class="badge bg-red" style="font-size: 10px; margin-top: -7px">Extraordinária</span><i class="fa fa-share-alt"></i></span>
+            }
+            else
+            {
+                <span class="info-box-icon" style="background-color: #222d32; color: #ffffff;"><i class="fa fa-share-alt"></i></span>
+            }
+
+            var headerBgColor = "";
+            var iconeExtraHorario = string.Empty;
+
+            if (Model.ReunioesGetResult.Status == RestClients.Cipas.StatusAgendamento.Cancelado)
+            {
+                headerBgColor = "#f9754d";
+            }
+            else if (Model.ReunioesGetResult.Status == RestClients.Cipas.StatusAgendamento.Realizado && Model.ReunioesGetResult.Ata?.Status == RestClients.Cipas.Reunioes.StatusAta.Fechada)
+            {
+                headerBgColor = "#69b96b";
+            }
+            else
+            {
+                headerBgColor = "#b8c7ce";
+
+                if (Model.ReunioesGetResult.Status == RestClients.Cipas.StatusAgendamento.Adiado)
+                {
+                    iconeExtraHorario = "<i class=\"fa fa-arrow-circle-down\" style=\"color: #dd4b39; padding-left: 5px;\"></i> ";
+                }
+                else if (Model.ReunioesGetResult.Status == RestClients.Cipas.StatusAgendamento.Adiantado)
+                {
+                    iconeExtraHorario = "<i class=\"fa fa-arrow-circle-up\" style=\"color: #dd4b39; padding-left: 5px;\"></i> ";
+                }
+            }
+        }
+
+        <div class="info-box-content" style="background-color: @headerBgColor; height: 55px;">
+            <span class="info-box-number">
+                <i class="fa fa-clock-o" style="padding-right: 4px;"></i>
+                @Model.ReunioesGetResult.DataPrevista?.ToString("dd/MM/yyyy - HH:mm")
+
+                <span data-toggle="tooltip" title="ref. @Model.ReunioesGetResult.MesDeReferencia" class="badge bg-purple-gradient" style="margin-left: 5px; margin-bottom: 3px">@Convert.ToInt32(Model.ReunioesGetResult.MesDeReferencia).ToString().PadLeft(2, '0')</span>
+
+                @Html.Raw(iconeExtraHorario)
+            </span>
+            <span class="info-box-text"><i class="fa fa-map-marker" style="padding-left: 3px; padding-right: 8px"></i> @Model.ReunioesGetResult.Local</span>
+        </div>
+
+        <div class="box-footer" style="padding-bottom: 0px; padding-top: 3px;">
+            @if (Model.ReunioesGetResult.Status == RestClients.Cipas.StatusAgendamento.Realizado && Model.ReunioesGetResult.Ata?.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+            {
+                var meuParticipante = Model.ReunioesGetResult.Ata.Participantes.FirstOrDefault(p => p.ParticipanteEmail.ToLower() == userPrincipalBuilder.UserPrincipal.Email?.ToLower());
+                if (meuParticipante != null && (!meuParticipante.ParticipantePossuiConsentValido.HasValue || !meuParticipante.ParticipantePossuiConsentValido.Value))
+                {
+                    <div class="box-tools pull-right">
+                        <a href="#" data-ajax="true" data-ajax-method="get" data-ajax-success="showFormOnBootbox" data-ajax-url="@Url.Page(pageName: "Atas/GerenciarConsentsDeParticipantes", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, participanteId = meuParticipante.ParticipanteId })" class="btn btn-social btn-warning btn-xs" style="margin-top: 3px; margin-left: 10px">
+                            <i class="fa fa-gavel" style="padding-right: 2px"></i>
+                            <span style="padding-right: 7px">
+                                Consent
+                            </span>
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    var meuAusente = Model.ReunioesGetResult.Ata.Ausentes.FirstOrDefault(p => p.AusenteEmail.ToLower() == userPrincipalBuilder.UserPrincipal.Email?.ToLower());
+                    if (meuAusente != null && (!meuAusente.AusentePossuiConsentValido.HasValue || !meuAusente.AusentePossuiConsentValido.Value))
+                    {
+                        <div class="box-tools pull-right">
+                            <a href="#" data-ajax="true" data-ajax-method="get" data-ajax-success="showFormOnBootbox" data-ajax-url="@Url.Page(pageName: "Atas/GerenciarConsentsDeAusentes", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, ausenteId = meuAusente.AusenteId })" class="btn btn-social btn-warning btn-xs" style="margin-top: 3px; margin-left: 10px">
+                                <i class="fa fa-gavel" style="padding-right: 2px"></i>
+                                <span style="padding-right: 7px">
+                                    Consent
+                                </span>
+                            </a>
+                        </div>
+                    }
+                }
+            }
+
+            <div class="box-tools pull-right action-buttons">
+                @if (Model.ReunioesGetResult.Status != RestClients.Cipas.StatusAgendamento.Realizado && Model.ReunioesGetResult.Status != RestClients.Cipas.StatusAgendamento.Cancelado)
+                {
+                    if (userPrincipalBuilder.HasEditorRights())
+                    {
+                        <a href="#" data-ajax-anchor="handleConfirmCancelar()" class="btn btn-box-tool" data-toggle="tooltip" title="Cancelar">
+                            <i class="fa fa-undo"></i>
+                        </a>
+
+                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Editar", values: new { id = Model.ReunioesGetResult.Id })' data-ajax-method="get" data-ajax-update="#divEditarReuniao" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Editar">
+                            <i class="fa fa-pencil"></i>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="box box-widget">
+        <div class="box-footer no-padding">
+            <div id="divEditarReuniao"></div>
+
+            <ul class="nav nav-pills nav-stacked">
+                <li>
+                    <a>
+                        @{
+                            var labelStatusClass = string.Empty;
+                            var iconeExtraStatus = string.Empty;
+
+                            if (Model.ReunioesGetResult.Status == RestClients.Cipas.StatusAgendamento.Realizado)
+                            {
+                                labelStatusClass = "label-primary";
+                            }
+                            else if (Model.ReunioesGetResult.Status == RestClients.Cipas.StatusAgendamento.Cancelado)
+                            {
+                                labelStatusClass = "label-danger";
+                            }
+                            else
+                            {
+                                labelStatusClass = "label-default";
+
+                                if (Model.ReunioesGetResult.Status == RestClients.Cipas.StatusAgendamento.Adiado)
+                                {
+                                    iconeExtraStatus = "<i class=\"fa fa-arrow-circle-down\" style=\"color: #dd4b39;\"></i> ";
+                                }
+                                else if (Model.ReunioesGetResult.Status == RestClients.Cipas.StatusAgendamento.Adiantado)
+                                {
+                                    iconeExtraStatus = "<i class=\"fa fa-arrow-circle-up\" style=\"color: #dd4b39;\"></i> ";
+                                }
+                            }
+                        }
+
+                        <b>Status</b>
+                        <span class="label @labelStatusClass pull-right" style="font-size: 14px; padding-left: 5px; padding-right: 5px">@Html.Raw(iconeExtraStatus) @Model.ReunioesGetResult.Status.GetDisplayAs()</span>
+                    </a>
+                </li>
+                <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                    <b>
+                        Cipa
+                    </b>
+
+                    <span class="pull-right" style="font-size: 14px; font-weight: bold">
+                        <a asp-page="/Cipas/Detalhar" asp-route-id="@Model.ReunioesGetResult.CipaId">
+                            @Model.ReunioesGetResult.CipaCodigo
+                        </a>
+                    </span>
+                </li>
+                <li>
+                    <a>
+                        <b>Cadastrada</b>
+                        <span class="pull-right" style="font-size: 14px">em @Model.ReunioesGetResult.CreationDate?.ToLocalTime() por @Model.ReunioesGetResult.CreationUser</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    var statusBadgeColor = "";
+    var statusBorderColor = "default";
+
+    if (Model.ReunioesGetResult.Ata?.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+    {
+        statusBadgeColor = "yellow";
+        statusBorderColor = "warning";
+    }
+    else if (Model.ReunioesGetResult.Ata?.Status == RestClients.Cipas.Reunioes.StatusAta.Finalizada || Model.ReunioesGetResult.Ata?.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+    {
+        statusBadgeColor = "blue";
+        statusBorderColor = "primary";
+    }
+    else if (Model.ReunioesGetResult.Ata?.Status == RestClients.Cipas.Reunioes.StatusAta.Fechada)
+    {
+        statusBadgeColor = "green";
+        statusBorderColor = "success";
+    }
+
+    <div id="divAta" class="box box-@statusBorderColor" data-ataid="@Model.ReunioesGetResult.Ata?.AtaId">
+        <div class="box-header">
+            <h3 class="box-title">
+                Ata
+                <span data-toggle="tooltip" title="Número" class="badge bg-purple-gradient" style="margin-left: 5px; margin-top: -2px">@Model.ReunioesGetResult.Ata?.Numero</span>
+                <span class="badge bg-@statusBadgeColor-gradient" style="margin-left: 5px; margin-top: -2px">@Model.ReunioesGetResult.Ata?.Status.GetDisplayAs()</span>
+            </h3>
+
+            <div class="box-tools pull-right action-buttons">
+                @if (userPrincipalBuilder.HasEditorRights())
+                {
+                    if (Model.ReunioesGetResult.Ata == null)
+                    {
+                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "/Reunioes/Atas/Cadastrar", values: new { reuniaoId = Model.ReunioesGetResult.Id })' data-ajax-method="get" data-ajax-update="#divCadastrarAta" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Gerar">
+                            <i class="fa fa-sticky-note"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                        {
+                            <a href="#" data-ajax-anchor="handleConfirmFinalizarAta()" class="btn btn-box-tool" data-toggle="tooltip" title="Finalizar Edição">
+                                <i class="fa fa-check-square-o"></i>
+                            </a>
+
+                            <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/Editar", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId })' data-ajax-method="get" data-ajax-update="#divEditarAta" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Editar">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                        }
+
+                        if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Finalizada)
+                        {
+                            //TODO: método abaixo somente para Presidente ou Vice da cipa.
+                            <a href="#" data-ajax-anchor="handleConfirmAprovarAta()" class="btn btn-box-tool" data-toggle="tooltip" title="Aprovar">
+                                <i class="fa fa-gavel"></i>
+                            </a>
+                        }
+
+                        if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Finalizada || Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                        {
+                            <a href="#" data-ajax-anchor="handleConfirmReabrirAta()" class="btn btn-box-tool" data-toggle="tooltip" title="Reabrir para Edição">
+                                <i class="fa fa-undo"></i>
+                            </a>
+                        }
+                    }
+                }
+
+                <a class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </a>
+            </div>
+        </div>
+
+        @if (Model.ReunioesGetResult.Ata == null)
+        {
+            <div class="box-footer no-padding" id="divCadastrarAta"></div>
+        }
+        else
+        {
+            <div class="box-footer no-padding">
+                <div class="" id="divEditarAta"></div>
+
+                <ul class="nav nav-pills nav-stacked">
+                    <li>
+                        <a>
+                            <b>Código</b>
+                            <span class="pull-right" style="font-size: 14px; font-weight: bold">@Model.ReunioesGetResult.Ata.Codigo</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a>
+                            <b>Local</b>
+                            <span class="pull-right" style="font-size: 14px">@Model.ReunioesGetResult.Ata.Local</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a>
+                            <b>Data</b>
+                            <span class="pull-right" style="font-size: 14px">@Model.ReunioesGetResult.Ata.Inicio.Value.ToString("dd/MM/yyyy") de @Model.ReunioesGetResult.Ata.Inicio.Value.ToString("HH:mm") até @Model.ReunioesGetResult.Ata.Termino.Value.ToString("HH:mm")</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a>
+                            <b>Cadastrada</b>
+                            <span class="pull-right" style="font-size: 14px">em @Model.ReunioesGetResult.Ata.AtaCreationDate?.ToLocalTime() por @Model.ReunioesGetResult.Ata.AtaCreationUser</span>
+                        </a>
+                    </li>
+
+                    @if (Model.ReunioesGetResult.Ata.Finalizacao_Data.HasValue)
+                    {
+                        <li>
+                            <a>
+                                <b>Finalizada</b>
+                                <span class="pull-right" style="font-size: 14px">em @Model.ReunioesGetResult.Ata.Finalizacao_Data por @Model.ReunioesGetResult.Ata.Finalizacao_Ator</span>
+                            </a>
+                        </li>
+                    }
+
+                    @if (Model.ReunioesGetResult.Ata.Aprovacao_Data.HasValue)
+                    {
+                        <li>
+                            <a>
+                                <b>Aprovada</b>
+                                <span class="pull-right" style="font-size: 14px">em @Model.ReunioesGetResult.Ata.Aprovacao_Data por @Model.ReunioesGetResult.Ata.Aprovacao_Ator</span>
+                            </a>
+                        </li>
+                    }
+
+                    @if (Model.ReunioesGetResult.Ata.Fechamento_Data.HasValue)
+                    {
+                        <li>
+                            <a>
+                                <b>Fechada</b>
+                                <span class="pull-right" style="font-size: 14px">em @Model.ReunioesGetResult.Ata.Fechamento_Data por @Model.ReunioesGetResult.Ata.Fechamento_Ator</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="box-body" style="padding: 0">
+                <div id="divParticipantes" class="box box-default" style="margin-bottom: 0">
+                    <div class="box-header">
+                        @{
+                            var totalParticipantes = Model.ReunioesGetResult.Ata.Participantes?.Count() ?? 0;
+                        }
+                        <h3 class="box-title">Participantes (@totalParticipantes)</h3>
+
+                        <div class="box-tools pull-right action-buttons">
+                            @if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                            {
+                                if (userPrincipalBuilder.HasEditorRights())
+                                {
+                                    <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarParticipantesConvidados", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId })' data-ajax-method="get" data-ajax-update="#divAdicionarParticipantes" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Adicionar Convidado">
+                                        <i class="fa fa-id-card"></i>
+                                    </a>
+
+                                    <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarParticipantes", values: new { cipaId = Model.ReunioesGetResult.CipaId, reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId })' data-ajax-method="get" data-ajax-update="#divAdicionarParticipantes" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Adicionar">
+                                        <i class="fa fa-users"></i>
+                                    </a>
+                                }
+                            }
+
+                            <a class="btn btn-box-tool" data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="box-footer no-padding">
+                        <div id="divAdicionarParticipantes"></div>
+
+                        <ul class="nav nav-pills nav-stacked">
+                            @if (totalParticipantes > 0)
+                            {
+                                foreach (var participante in Model.ReunioesGetResult.Ata.Participantes.Where(p => !p.EConvidado.HasValue || !p.EConvidado.Value))
+                                {
+                                    var participanteBgColor = "#f0f0f0";
+                                    if (participante.ParticipantePossuiConsentValido.HasValue && participante.ParticipantePossuiConsentValido.Value)
+                                    {
+                                        participanteBgColor = "#e8f6f0";
+                                    }
+
+                                    <li style="padding: 10px 15px; border-left: 3px solid transparent; background-color: @participanteBgColor">
+                                        <b>@participante.ParticipanteNomeCompleto</b>
+
+                                        <span class="action-buttons">
+                                            @if (participante.ParticipantePossuiConsentValido.HasValue && participante.ParticipantePossuiConsentValido.Value)
+                                            {
+                                                <a style="padding-left: 5px; color: #69b96b" data-toggle="tooltip" title="Consent válido!">
+                                                    <i class="fa fa-check-circle"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a style="padding-left: 5px; color: #555555" data-toggle="tooltip" title="Sem consent válido!">
+                                                    <i class="fa fa-times-circle"></i>
+                                                </a>
+                                            }
+                                        </span>
+
+                                        <div class="pull-right action-buttons" style="margin-top: -2px">
+                                            <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarConsentsDeParticipantes", pageHandler: "ConsentsPartial", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, participanteId = participante.ParticipanteId })' data-ajax-method="get" data-ajax-success="showPartialOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Consents">
+                                                <i class="fa fa-history"></i>
+                                            </a>
+
+                                            @if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                            {
+                                                if (userPrincipalBuilder.HasEditorRights())
+                                                {
+                                                    <a href="#" data-ajax-anchor="handleConfirmDeleteParticipante('@participante.ParticipanteId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                        <i class="fa fa-times"></i>
+                                                    </a>
+                                                }
+                                            }
+                                        </div>
+                                    </li>
+                                }
+
+                                foreach (var participante in Model.ReunioesGetResult.Ata.Participantes.Where(p => p.EConvidado.HasValue && p.EConvidado.Value))
+                                {
+                                    var participanteBgColor = "#f0f0f0";
+                                    if (participante.ParticipantePossuiConsentValido.HasValue && participante.ParticipantePossuiConsentValido.Value)
+                                    {
+                                        participanteBgColor = "#e8f6f0";
+                                    }
+
+                                    <li style="padding: 10px 15px; border-left: 3px solid transparent; background-color: @participanteBgColor">
+                                        <b>@participante.ParticipanteNomeCompleto</b>
+
+                                        <span class="action-buttons">
+                                            <a style="padding-left: 5px; color: #3c8dbc" data-toggle="tooltip" title="Participante Convidado - Órgão/Empresa: @participante.Organizacao - Função: @participante.Funcao">
+                                                <i class="fa fa-id-card"></i>
+                                            </a>
+
+                                            @if (participante.ParticipantePossuiConsentValido.HasValue && participante.ParticipantePossuiConsentValido.Value)
+                                            {
+                                                <a style="padding-left: 5px; color: #69b96b" data-toggle="tooltip" title="Consent válido!">
+                                                    <i class="fa fa-check-circle"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a style="padding-left: 5px; color: #555555" data-toggle="tooltip" title="Sem consent válido!">
+                                                    <i class="fa fa-times-circle"></i>
+                                                </a>
+                                            }
+                                        </span>
+
+                                        <div class="pull-right action-buttons" style="margin-top: -2px">
+                                            <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarConsentsDeParticipantes", pageHandler: "ConsentsPartial", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, participanteId = participante.ParticipanteId })' data-ajax-method="get" data-ajax-success="showPartialOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Consents">
+                                                <i class="fa fa-history"></i>
+                                            </a>
+
+                                            @if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                            {
+                                                if (userPrincipalBuilder.HasEditorRights())
+                                                {
+                                                    <a href="#" data-ajax-anchor="handleConfirmDeleteParticipante('@participante.ParticipanteId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                        <i class="fa fa-times"></i>
+                                                    </a>
+                                                }
+                                            }
+                                        </div>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="divAusentes" class="box box-default" style="margin-bottom: 0">
+                    <div class="box-header">
+                        @{
+                            var totalAusentes = Model.ReunioesGetResult.Ata.Ausentes?.Count() ?? 0;
+                        }
+                        <h3 class="box-title">Ausentes (@totalAusentes)</h3>
+
+                        <div class="box-tools pull-right action-buttons">
+                            @if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                            {
+                                if (userPrincipalBuilder.HasEditorRights())
+                                {
+                                    <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarAusentes", values: new { cipaId = Model.ReunioesGetResult.CipaId, reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId })' data-ajax-method="get" data-ajax-update="#divAdicionarAusentes" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Adicionar">
+                                        <i class="fa fa-users"></i>
+                                    </a>
+                                }
+                            }
+
+                            <a class="btn btn-box-tool" data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="box-footer no-padding">
+                        <div id="divAdicionarAusentes"></div>
+
+                        <ul class="nav nav-pills nav-stacked">
+                            @if (totalAusentes > 0)
+                            {
+                                foreach (var ausente in Model.ReunioesGetResult.Ata.Ausentes)
+                                {
+                                    var ausenteBgColor = "#f0f0f0";
+                                    if (ausente.AusentePossuiConsentValido.HasValue && ausente.AusentePossuiConsentValido.Value)
+                                    {
+                                        ausenteBgColor = "#e8f6f0";
+                                    }
+
+                                    <li style="padding: 10px 15px; border-left: 3px solid transparent; background-color: @ausenteBgColor">
+                                        <b>@ausente.AusenteNomeCompleto</b>
+
+                                        <span class="action-buttons">
+                                            <a style="padding-left: 5px; color: #3c8dbc" data-toggle="tooltip" title="Justificativa: @ausente.Justificativa?.GetDisplayAs()">
+                                                <i class="fa fa-info-circle"></i>
+                                            </a>
+
+                                            @if (ausente.AusentePossuiConsentValido.HasValue && ausente.AusentePossuiConsentValido.Value)
+                                            {
+                                                <a style="padding-left: 5px; color: #69b96b" data-toggle="tooltip" title="Consent válido!">
+                                                    <i class="fa fa-check-circle"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a style="padding-left: 5px; color: #555555" data-toggle="tooltip" title="Sem consent válido!">
+                                                    <i class="fa fa-times-circle"></i>
+                                                </a>
+                                            }
+                                        </span>
+
+                                        <div class="pull-right action-buttons" style="margin-top: -2px">
+                                            @if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                            {
+                                                if (userPrincipalBuilder.HasEditorRights())
+                                                {
+                                                    <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/Ausentes/Editar", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, ausenteId = ausente.AusenteId })' data-ajax-method="get" data-ajax-success="showFormOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Editar Justificativa">
+                                                        <i class="fa fa-pencil"></i>
+                                                    </a>
+                                                }
+                                            }
+
+                                            <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarConsentsDeAusentes", pageHandler: "ConsentsPartial", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, ausenteId = ausente.AusenteId })' data-ajax-method="get" data-ajax-success="showPartialOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Consents">
+                                                <i class="fa fa-history"></i>
+                                            </a>
+
+                                            @if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                            {
+                                                if (userPrincipalBuilder.HasEditorRights())
+                                                {
+                                                    <a href="#" data-ajax-anchor="handleConfirmDeleteAusente('@ausente.AusenteId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                        <i class="fa fa-times"></i>
+                                                    </a>
+                                                }
+                                            }
+                                        </div>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="divPlanoDeAcao" class="box box-default" data-planodeacaoid="@Model.ReunioesGetResult.PlanoDeAcaoId" style="margin-bottom: 0">
+                    <div class="box-header">
+                        @{
+                            var totalItens = Model.PlanosDeAcaoGetResult?.Itens?.Count() ?? 0;
+                        }
+                        <h3 class="box-title">Plano de Ação (@totalItens)</h3>
+
+                        <div class="box-tools pull-right action-buttons">
+                            @if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                            {
+                                if (userPrincipalBuilder.HasEditorRights())
+                                {
+                                    if (!Model.ReunioesGetResult.PlanoDeAcaoId.HasValue)
+                                    {
+                                        <a href="#" data-ajax-anchor="handleConfirmCriarPlanoDeAcao()" class="btn btn-box-tool" data-toggle="tooltip" title="Gerar">
+                                            <i class="fa fa-crosshairs"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "PlanosDeAcao/GerenciarItens", values: new { cipaId = Model.ReunioesGetResult.CipaId, reuniaoId = Model.ReunioesGetResult.Id, planoDeAcaoId = Model.ReunioesGetResult.PlanoDeAcaoId })' data-ajax-method="get" data-ajax-update="#divAdicionarPlanosDeAcaoItens" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Adicionar">
+                                            <i class="fa fa-tasks"></i>
+                                        </a>
+                                    }
+                                }
+                            }
+
+                            <a class="btn btn-box-tool" data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="box-footer no-padding">
+                        <div id="divAdicionarPlanosDeAcaoItens"></div>
+
+                        <ul class="nav nav-pills nav-stacked">
+                            @if (!string.IsNullOrWhiteSpace(Model.PlanosDeAcaoGetResult?.Codigo))
+                            {
+                                <li>
+                                    <a>
+                                        <b>Código</b>
+                                        <span class="pull-right" style="font-size: 14px; font-weight: bold">@Model.PlanosDeAcaoGetResult.Codigo</span>
+                                    </a>
+                                </li>
+                            }
+
+                            @if (totalItens > 0)
+                            {
+                                <li>
+                                    <div class="row" style="padding: 10px">
+                                        @foreach (var item in Model.PlanosDeAcaoGetResult.Itens)
+                                        {
+                                            var progressClass = "danger";
+                                            var progressPercent = 100;
+                                            var progressLabel = "Expirado";
+
+                                            if (item.Prazo.HasValue)
+                                            {
+                                                var dataReferencia = item.DataRealizacao.HasValue
+                                                    ? item.DataRealizacao.Value
+                                                    : DateTime.Now;
+
+                                                if (item.Prazo.Value.Date == dataReferencia.Date)
+                                                {
+                                                    progressLabel = "A Expirar";
+                                                }
+                                                else if (item.Prazo.Value.Date > dataReferencia.Date)
+                                                {
+                                                    progressPercent = Convert.ToInt32(Math.Round((((dataReferencia - Model.PlanosDeAcaoGetResult.CreationDate.Value).TotalDays) / ((item.Prazo.Value - Model.PlanosDeAcaoGetResult.CreationDate.Value).TotalDays)) * 100));
+
+                                                    if (progressPercent <= 50)
+                                                    {
+                                                        progressClass = "success";
+                                                        progressLabel = "Em dia";
+                                                    }
+                                                    else if (progressPercent <= 80)
+                                                    {
+                                                        progressClass = "warning";
+                                                        progressLabel = "Meia Vida";
+                                                    }
+                                                    else if (progressPercent <= 99)
+                                                    {
+                                                        progressLabel = "A Expirar";
+                                                    }
+                                                }
+                                            }
+
+                                            var collapsedClass = string.Empty;
+                                            var collapsedIcon = "minus";
+
+                                            if (item.Status == RestClients.PlanosDeAcao.StatusAgendamento.Realizado || item.Status == RestClients.PlanosDeAcao.StatusAgendamento.Cancelado)
+                                            {
+                                                collapsedClass = "collapsed-box";
+                                                collapsedIcon = "plus";
+                                            }
+
+                                            <div class="col-xs-12 col-md-6">
+                                                <div class="box @collapsedClass" style="background: #f0f0f0; border: 1px solid #ddd">
+                                                    <div class="box-header with-border" style="border-bottom: 1px solid #ddd">
+                                                        <i class="fa fa-tasks"></i>
+
+                                                        @{
+                                                            var labelStatusItemClass = string.Empty;
+                                                            var iconeExtraItemStatus = string.Empty;
+
+                                                            if (item.Status == RestClients.PlanosDeAcao.StatusAgendamento.Realizado)
+                                                            {
+                                                                labelStatusItemClass = "green";
+                                                            }
+                                                            else if (item.Status == RestClients.PlanosDeAcao.StatusAgendamento.Cancelado)
+                                                            {
+                                                                labelStatusItemClass = "red";
+                                                            }
+                                                            else
+                                                            {
+                                                                labelStatusItemClass = "gray";
+
+                                                                if (item.Status == RestClients.PlanosDeAcao.StatusAgendamento.Adiado)
+                                                                {
+                                                                    iconeExtraItemStatus = "<i class=\"fa fa-arrow-circle-down\" style=\"color: #dd4b39;\"></i> ";
+                                                                }
+                                                                else if (item.Status == RestClients.PlanosDeAcao.StatusAgendamento.Adiantado)
+                                                                {
+                                                                    iconeExtraItemStatus = "<i class=\"fa fa-arrow-circle-up\" style=\"color: #dd4b39;\"></i> ";
+                                                                }
+                                                            }
+                                                        }
+
+                                                        <h5 class="box-title"><b>@item.Codigo.Replace($"{Model.PlanosDeAcaoGetResult.Codigo}-", "")</b> <span style="margin-left: 10px; font-size: 10px; margin-bottom: 2px;" class="badge bg-@labelStatusItemClass">@Html.Raw(iconeExtraItemStatus) @item.Status.GetDisplayAs()</span></h5>
+
+                                                        <div class="box-tools pull-right action-buttons">
+                                                            @if (userPrincipalBuilder.HasEditorRights())
+                                                            {
+                                                                if (item.Status != RestClients.PlanosDeAcao.StatusAgendamento.Realizado && item.Status != RestClients.PlanosDeAcao.StatusAgendamento.Cancelado)
+                                                                {
+                                                                    if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao || Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                                                                    {
+                                                                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "PlanosDeAcao/Itens/AdicionarResponsavel", values: new { cipaId = Model.ReunioesGetResult.CipaId, reuniaoId = Model.ReunioesGetResult.Id, planoDeAcaoId = Model.PlanosDeAcaoGetResult.Id, itemId = item.ItemId })' data-ajax-method="get" data-ajax-success="showFormOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Adicionar">
+                                                                            <i class="fa fa-users"></i>
+                                                                        </a>
+
+                                                                        <a asp-page="/Reunioes/PlanosDeAcao/Itens/Editar" asp-route-reuniaoid="@Model.ReunioesGetResult.Id" asp-route-planodeacaoid="@Model.PlanosDeAcaoGetResult.Id" asp-route-itemid="@item.ItemId" class="btn btn-box-tool" data-toggle="tooltip" title="Editar">
+                                                                            <i class="fa fa-pencil"></i>
+                                                                        </a>
+                                                                    }
+
+                                                                    if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                                                    {
+                                                                        <a href="#" data-ajax-anchor="handleConfirmDeleteItemPlanoDeAcao('@item.ItemId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </a>
+                                                                    }
+
+                                                                    if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                                                                    {
+                                                                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "PlanosDeAcao/Itens/Concluir", values: new { reuniaoId = Model.ReunioesGetResult.Id, planoDeAcaoId = Model.PlanosDeAcaoGetResult.Id, itemId = item.ItemId })' data-ajax-method="get" data-ajax-success="showFormOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Concluir">
+                                                                            <i class="fa fa-gavel"></i>
+                                                                        </a>
+
+                                                                        <a href="#" data-ajax-anchor="handleConfirmCancelarItemPlanoDeAcao('@item.ItemId')" class="btn btn-box-tool" data-toggle="tooltip" title="Cancelar">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </a>
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            <a class="btn btn-box-tool" data-widget="collapse">
+                                                                <i class="fa fa-@collapsedIcon"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="box-body">
+                                                        <blockquote style="border-left: 5px solid #ddd; font-size: 14px; margin-bottom: 0px">
+                                                            <p>
+                                                                Prazo: <b>@item.Prazo?.ToString("dd/MM/yyyy")</b> <span style="margin-left: 10px" class="label label-@progressClass">@progressLabel</span>
+
+                                                                <div class="progress progress-xxs active" style="margin-bottom: 15px; margin-top: 5px" data-toggle="tooltip" title="Progressão do Prazo: @progressPercent.ToString()% corrido">
+                                                                    <div class="progress-bar progress-bar-@progressClass progress-bar-striped" role="progressbar" aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100" style="width: @progressPercent%">
+                                                                        <span class="sr-only">@progressPercent.ToString()% Complete</span>
+                                                                    </div>
+                                                                </div>
+                                                            </p>
+
+                                                            @if (item.Status == RestClients.PlanosDeAcao.StatusAgendamento.Realizado && item.DataRealizacao.HasValue)
+                                                            {
+                                                                <p>
+                                                                    Data de Realização: <b>@item.DataRealizacao.Value.ToString("dd/MM/yyyy")</b>
+                                                                </p>
+                                                            }
+
+                                                            <p style="margin: 0px">
+                                                                Responsáveis:<BR />
+                                                                <ul>
+                                                                    @foreach (var responsavel in item.Responsaveis)
+                                                                    {
+                                                                        <li class="action-buttons">
+                                                                            @responsavel.NomeCompleto
+
+                                                                            @if (userPrincipalBuilder.HasEditorRights())
+                                                                            {
+                                                                                if (item.Status != RestClients.PlanosDeAcao.StatusAgendamento.Realizado && item.Status != RestClients.PlanosDeAcao.StatusAgendamento.Cancelado)
+                                                                                {
+                                                                                    if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao || Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                                                                                    {
+                                                                                        <a href="#" data-ajax-anchor="handleConfirmRemoverResponsavel('@item.ItemId', '@responsavel.ResponsavelId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover" style="margin-bottom: 2px; padding: 0px 0px 0px 3px">
+                                                                                            <i class="fa fa-times"></i>
+                                                                                        </a>
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        </li>
+                                                                    }
+                                                                </ul>
+                                                            </p>
+
+                                                            <p>
+                                                                Ação:<br />
+                                                                @item.Acao
+                                                            </p>
+                                                        </blockquote>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="divAssuntos" class="box box-default" style="margin-bottom: 0">
+                    <div class="box-header">
+                        @{
+                            var totalAssuntos = Model.ReunioesGetResult.Ata.Assuntos?.Count() ?? 0;
+                        }
+                        <h3 class="box-title">Assuntos (@totalAssuntos)</h3>
+
+                        <div class="box-tools pull-right action-buttons">
+                            @if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                            {
+                                if (userPrincipalBuilder.HasEditorRights())
+                                {
+                                    <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarAssuntos", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId })' data-ajax-method="get" data-ajax-update="#divAdicionarAssuntos" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Adicionar">
+                                        <i class="fa fa-comments"></i>
+                                    </a>
+                                }
+                            }
+
+                            <a class="btn btn-box-tool" data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="box-footer no-padding">
+                        <div id="divAdicionarAssuntos"></div>
+
+                        @if (totalAssuntos > 0)
+                        {
+                            <div style="padding: 10px">
+                                <ul class="timeline timeline-inverse">
+                                    @if (Model.ReunioesGetResult.Ata.Assuntos.Any(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.PlanoDeTrabalho))
+                                    {
+                                        <li class="time-label">
+                                            <span class="bg-gray">
+                                                0. @RestClients.Cipas.Reunioes.TipoAssunto.PlanoDeTrabalho.GetDisplayAs()
+                                            </span>
+                                        </li>
+
+                                        foreach (var assunto in Model.ReunioesGetResult.Ata.Assuntos.Where(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.PlanoDeTrabalho))
+                                        {
+                                            var classificacaoBadgeColor = "";
+
+                                            if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Público)
+                                            {
+                                                classificacaoBadgeColor = "green-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Reservado)
+                                            {
+                                                classificacaoBadgeColor = "yellow-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Privativo)
+                                            {
+                                                classificacaoBadgeColor = "yellow-active";
+                                            }
+                                            else
+                                            {
+                                                classificacaoBadgeColor = "red-gradient";
+                                            }
+
+                                            <li>
+                                                <i class="fa fa-commenting" style="background-color: #222d32; color: #ffffff"></i>
+
+                                                <div class="timeline-item">
+                                                    <span class="time action-buttons" style="padding-top: 5px">
+                                                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarAssuntos", pageHandler: "AlteracoesPartial", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, assuntoId = assunto.AssuntoId })' data-ajax-method="get" data-ajax-success="showPartialOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Retificações">
+                                                            <i class="fa fa-history"></i>
+                                                        </a>
+
+                                                        @if (userPrincipalBuilder.HasEditorRights())
+                                                        {
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao || Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                                                            {
+                                                                <a asp-page="/Reunioes/Atas/Assuntos/Editar" asp-route-reuniaoid="@Model.ReunioesGetResult.Id" asp-route-ataid="@Model.ReunioesGetResult.Ata.AtaId" asp-route-assuntoid="@assunto.AssuntoId" class="btn btn-box-tool" data-toggle="tooltip" title="Retificar">
+                                                                    <i class="fa fa-pencil"></i>
+                                                                </a>
+                                                            }
+
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                                            {
+                                                                <a href="#" data-ajax-anchor="handleConfirmDeleteAssunto('@assunto.AssuntoId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                                    <i class="fa fa-times"></i>
+                                                                </a>
+                                                            }
+                                                        }
+                                                    </span>
+
+                                                    <h3 class="timeline-header">
+                                                        <span class="badge bg-@classificacaoBadgeColor" style="margin-top: -2px; margin-right: 5px; font-size: 10px">@assunto.ClassificacaoDaInformacao</span>
+                                                        Keywords: @assunto.Keywords
+                                                    </h3>
+
+                                                    <div class="timeline-body">
+                                                        @assunto.Descricao
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+
+                                    @if (Model.ReunioesGetResult.Ata.Assuntos.Any(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.ConsideracoesIniciais))
+                                    {
+                                        <li class="time-label">
+                                            <span class="bg-gray">
+                                                1. @RestClients.Cipas.Reunioes.TipoAssunto.ConsideracoesIniciais.GetDisplayAs()
+                                            </span>
+                                        </li>
+
+                                        foreach (var assunto in Model.ReunioesGetResult.Ata.Assuntos.Where(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.ConsideracoesIniciais))
+                                        {
+                                            var classificacaoBadgeColor = "";
+
+                                            if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Público)
+                                            {
+                                                classificacaoBadgeColor = "green-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Reservado)
+                                            {
+                                                classificacaoBadgeColor = "yellow-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Privativo)
+                                            {
+                                                classificacaoBadgeColor = "yellow-active";
+                                            }
+                                            else
+                                            {
+                                                classificacaoBadgeColor = "red-gradient";
+                                            }
+
+                                            <li>
+                                                <i class="fa fa-commenting" style="background-color: #222d32; color: #ffffff"></i>
+
+                                                <div class="timeline-item">
+                                                    <span class="time action-buttons" style="padding-top: 5px">
+                                                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarAssuntos", pageHandler: "AlteracoesPartial", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, assuntoId = assunto.AssuntoId })' data-ajax-method="get" data-ajax-success="showPartialOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Retificações">
+                                                            <i class="fa fa-history"></i>
+                                                        </a>
+
+                                                        @if (userPrincipalBuilder.HasEditorRights())
+                                                        {
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao || Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                                                            {
+                                                                <a asp-page="/Reunioes/Atas/Assuntos/Editar" asp-route-reuniaoid="@Model.ReunioesGetResult.Id" asp-route-ataid="@Model.ReunioesGetResult.Ata.AtaId" asp-route-assuntoid="@assunto.AssuntoId" class="btn btn-box-tool" data-toggle="tooltip" title="Retificar">
+                                                                    <i class="fa fa-pencil"></i>
+                                                                </a>
+                                                            }
+
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                                            {
+                                                                <a href="#" data-ajax-anchor="handleConfirmDeleteAssunto('@assunto.AssuntoId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                                    <i class="fa fa-times"></i>
+                                                                </a>
+                                                            }
+                                                        }
+                                                    </span>
+
+                                                    <h3 class="timeline-header">
+                                                        <span class="badge bg-@classificacaoBadgeColor" style="margin-top: -2px; margin-right: 5px; font-size: 10px">@assunto.ClassificacaoDaInformacao</span>
+                                                        Keywords: @assunto.Keywords
+                                                    </h3>
+
+                                                    <div class="timeline-body">
+                                                        @assunto.Descricao
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+
+                                    @if (Model.ReunioesGetResult.Ata.Assuntos.Any(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.AcompanhamentoDoPlanoDeAcao))
+                                    {
+                                        <li class="time-label">
+                                            <span class="bg-gray">
+                                                2. @RestClients.Cipas.Reunioes.TipoAssunto.AcompanhamentoDoPlanoDeAcao.GetDisplayAs()
+                                            </span>
+                                        </li>
+
+                                        foreach (var assunto in Model.ReunioesGetResult.Ata.Assuntos.Where(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.AcompanhamentoDoPlanoDeAcao))
+                                        {
+                                            var classificacaoBadgeColor = "";
+
+                                            if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Público)
+                                            {
+                                                classificacaoBadgeColor = "green-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Reservado)
+                                            {
+                                                classificacaoBadgeColor = "yellow-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Privativo)
+                                            {
+                                                classificacaoBadgeColor = "yellow-active";
+                                            }
+                                            else
+                                            {
+                                                classificacaoBadgeColor = "red-gradient";
+                                            }
+
+                                            <li>
+                                                <i class="fa fa-commenting" style="background-color: #222d32; color: #ffffff"></i>
+
+                                                <div class="timeline-item">
+                                                    <span class="time action-buttons" style="padding-top: 5px">
+                                                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarAssuntos", pageHandler: "AlteracoesPartial", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, assuntoId = assunto.AssuntoId })' data-ajax-method="get" data-ajax-success="showPartialOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Retificações">
+                                                            <i class="fa fa-history"></i>
+                                                        </a>
+
+                                                        @if (userPrincipalBuilder.HasEditorRights())
+                                                        {
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao || Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                                                            {
+                                                                <a asp-page="/Reunioes/Atas/Assuntos/Editar" asp-route-reuniaoid="@Model.ReunioesGetResult.Id" asp-route-ataid="@Model.ReunioesGetResult.Ata.AtaId" asp-route-assuntoid="@assunto.AssuntoId" class="btn btn-box-tool" data-toggle="tooltip" title="Retificar">
+                                                                    <i class="fa fa-pencil"></i>
+                                                                </a>
+                                                            }
+
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                                            {
+                                                                <a href="#" data-ajax-anchor="handleConfirmDeleteAssunto('@assunto.AssuntoId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                                    <i class="fa fa-times"></i>
+                                                                </a>
+                                                            }
+                                                        }
+                                                    </span>
+
+                                                    <h3 class="timeline-header">
+                                                        <span class="badge bg-@classificacaoBadgeColor" style="margin-top: -2px; margin-right: 5px; font-size: 10px">@assunto.ClassificacaoDaInformacao</span>
+                                                        Keywords: @assunto.Keywords
+                                                    </h3>
+
+                                                    <div class="timeline-body">
+                                                        @assunto.Descricao
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+
+                                    @if (Model.ReunioesGetResult.Ata.Assuntos.Any(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.AssuntosPendentesDeReunioesAnteriores))
+                                    {
+                                        <li class="time-label">
+                                            <span class="bg-gray">
+                                                3.1. @RestClients.Cipas.Reunioes.TipoAssunto.AssuntosPendentesDeReunioesAnteriores.GetDisplayAs()
+                                            </span>
+                                        </li>
+
+                                        foreach (var assunto in Model.ReunioesGetResult.Ata.Assuntos.Where(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.AssuntosPendentesDeReunioesAnteriores))
+                                        {
+                                            var classificacaoBadgeColor = "";
+
+                                            if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Público)
+                                            {
+                                                classificacaoBadgeColor = "green-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Reservado)
+                                            {
+                                                classificacaoBadgeColor = "yellow-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Privativo)
+                                            {
+                                                classificacaoBadgeColor = "yellow-active";
+                                            }
+                                            else
+                                            {
+                                                classificacaoBadgeColor = "red-gradient";
+                                            }
+
+                                            <li>
+                                                <i class="fa fa-commenting" style="background-color: #222d32; color: #ffffff"></i>
+
+                                                <div class="timeline-item">
+                                                    <span class="time action-buttons" style="padding-top: 5px">
+                                                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarAssuntos", pageHandler: "AlteracoesPartial", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, assuntoId = assunto.AssuntoId })' data-ajax-method="get" data-ajax-success="showPartialOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Retificações">
+                                                            <i class="fa fa-history"></i>
+                                                        </a>
+
+                                                        @if (userPrincipalBuilder.HasEditorRights())
+                                                        {
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao || Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                                                            {
+                                                                <a asp-page="/Reunioes/Atas/Assuntos/Editar" asp-route-reuniaoid="@Model.ReunioesGetResult.Id" asp-route-ataid="@Model.ReunioesGetResult.Ata.AtaId" asp-route-assuntoid="@assunto.AssuntoId" class="btn btn-box-tool" data-toggle="tooltip" title="Retificar">
+                                                                    <i class="fa fa-pencil"></i>
+                                                                </a>
+                                                            }
+
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                                            {
+                                                                <a href="#" data-ajax-anchor="handleConfirmDeleteAssunto('@assunto.AssuntoId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                                    <i class="fa fa-times"></i>
+                                                                </a>
+                                                            }
+                                                        }
+                                                    </span>
+
+                                                    <h3 class="timeline-header">
+                                                        <span class="badge bg-@classificacaoBadgeColor" style="margin-top: -2px; margin-right: 5px; font-size: 10px">@assunto.ClassificacaoDaInformacao</span>
+                                                        Keywords: @assunto.Keywords
+                                                    </h3>
+
+                                                    <div class="timeline-body">
+                                                        @assunto.Descricao
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+
+                                    @if (Model.ReunioesGetResult.Ata.Assuntos.Any(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.AssuntosConcluidosDeReunioesAnteriores))
+                                    {
+                                        <li class="time-label">
+                                            <span class="bg-gray">
+                                                3.2. @RestClients.Cipas.Reunioes.TipoAssunto.AssuntosConcluidosDeReunioesAnteriores.GetDisplayAs()
+                                            </span>
+                                        </li>
+
+                                        foreach (var assunto in Model.ReunioesGetResult.Ata.Assuntos.Where(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.AssuntosConcluidosDeReunioesAnteriores))
+                                        {
+                                            var classificacaoBadgeColor = "";
+
+                                            if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Público)
+                                            {
+                                                classificacaoBadgeColor = "green-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Reservado)
+                                            {
+                                                classificacaoBadgeColor = "yellow-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Privativo)
+                                            {
+                                                classificacaoBadgeColor = "yellow-active";
+                                            }
+                                            else
+                                            {
+                                                classificacaoBadgeColor = "red-gradient";
+                                            }
+
+                                            <li>
+                                                <i class="fa fa-commenting" style="background-color: #222d32; color: #ffffff"></i>
+
+                                                <div class="timeline-item">
+                                                    <span class="time action-buttons" style="padding-top: 5px">
+                                                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarAssuntos", pageHandler: "AlteracoesPartial", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, assuntoId = assunto.AssuntoId })' data-ajax-method="get" data-ajax-success="showPartialOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Retificações">
+                                                            <i class="fa fa-history"></i>
+                                                        </a>
+
+                                                        @if (userPrincipalBuilder.HasEditorRights())
+                                                        {
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao || Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                                                            {
+                                                                <a asp-page="/Reunioes/Atas/Assuntos/Editar" asp-route-reuniaoid="@Model.ReunioesGetResult.Id" asp-route-ataid="@Model.ReunioesGetResult.Ata.AtaId" asp-route-assuntoid="@assunto.AssuntoId" class="btn btn-box-tool" data-toggle="tooltip" title="Retificar">
+                                                                    <i class="fa fa-pencil"></i>
+                                                                </a>
+                                                            }
+
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                                            {
+                                                                <a href="#" data-ajax-anchor="handleConfirmDeleteAssunto('@assunto.AssuntoId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                                    <i class="fa fa-times"></i>
+                                                                </a>
+                                                            }
+                                                        }
+                                                    </span>
+
+                                                    <h3 class="timeline-header">
+                                                        <span class="badge bg-@classificacaoBadgeColor" style="margin-top: -2px; margin-right: 5px; font-size: 10px">@assunto.ClassificacaoDaInformacao</span>
+                                                        Keywords: @assunto.Keywords
+                                                    </h3>
+
+                                                    <div class="timeline-body">
+                                                        @assunto.Descricao
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+
+                                    @if (Model.ReunioesGetResult.Ata.Assuntos.Any(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.AssuntosGerais))
+                                    {
+                                        <li class="time-label">
+                                            <span class="bg-gray">
+                                                4. @RestClients.Cipas.Reunioes.TipoAssunto.AssuntosGerais.GetDisplayAs()
+                                            </span>
+                                        </li>
+
+                                        foreach (var assunto in Model.ReunioesGetResult.Ata.Assuntos.Where(a => a.Tipo == RestClients.Cipas.Reunioes.TipoAssunto.AssuntosGerais))
+                                        {
+                                            var classificacaoBadgeColor = "";
+
+                                            if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Público)
+                                            {
+                                                classificacaoBadgeColor = "green-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Reservado)
+                                            {
+                                                classificacaoBadgeColor = "yellow-gradient";
+                                            }
+                                            else if (assunto.ClassificacaoDaInformacao == RestClients.Cipas.ClassificacaoDaInformacao.Privativo)
+                                            {
+                                                classificacaoBadgeColor = "yellow-active";
+                                            }
+                                            else
+                                            {
+                                                classificacaoBadgeColor = "red-gradient";
+                                            }
+
+                                            <li>
+                                                <i class="fa fa-commenting" style="background-color: #222d32; color: #ffffff"></i>
+
+                                                <div class="timeline-item">
+                                                    <span class="time action-buttons" style="padding-top: 5px">
+                                                        <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "Atas/GerenciarAssuntos", pageHandler: "AlteracoesPartial", values: new { reuniaoId = Model.ReunioesGetResult.Id, ataId = Model.ReunioesGetResult.Ata.AtaId, assuntoId = assunto.AssuntoId })' data-ajax-method="get" data-ajax-success="showPartialOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Retificações">
+                                                            <i class="fa fa-history"></i>
+                                                        </a>
+
+                                                        @if (userPrincipalBuilder.HasEditorRights())
+                                                        {
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao || Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.Aprovada)
+                                                            {
+                                                                <a asp-page="/Reunioes/Atas/Assuntos/Editar" asp-route-reuniaoid="@Model.ReunioesGetResult.Id" asp-route-ataid="@Model.ReunioesGetResult.Ata.AtaId" asp-route-assuntoid="@assunto.AssuntoId" class="btn btn-box-tool" data-toggle="tooltip" title="Retificar">
+                                                                    <i class="fa fa-pencil"></i>
+                                                                </a>
+                                                            }
+
+                                                            if (Model.ReunioesGetResult.Ata.Status == RestClients.Cipas.Reunioes.StatusAta.EmEdicao)
+                                                            {
+                                                                <a href="#" data-ajax-anchor="handleConfirmDeleteAssunto('@assunto.AssuntoId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                                                    <i class="fa fa-times"></i>
+                                                                </a>
+                                                            }
+                                                        }
+                                                    </span>
+
+                                                    <h3 class="timeline-header">
+                                                        <span class="badge bg-@classificacaoBadgeColor" style="margin-top: -2px; margin-right: 5px; font-size: 10px">@assunto.ClassificacaoDaInformacao</span>
+                                                        Keywords: @assunto.Keywords
+                                                    </h3>
+
+                                                    <div class="timeline-body">
+                                                        @assunto.Descricao
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+
+                                    <li>
+                                        <i class="fa fa-dot-circle-o bg-gray"></i>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @section Scripts {
+        <script>
+            handleConfirmFinalizarAta = function () {
+                confirmOperation("Você está finalizando a edição da ata desta reunião, indicando assim que os envolvidos estão aptos para darem seus consents.", function () {
+                    makeAjaxRequestWithPace("divAta", "?handler=FinalizarAta", "POST", {
+                        reuniaoId: $("[data-reuniaoid]").data("reuniaoid"),
+                        ataId: $("[data-ataid]").data("ataid")
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmReabrirAta = function () {
+                confirmOperation("Você está reabrindo a ata desta reunião para edição e isso fará com que os consents dados pelos participantes até o momento sejam anulados.", function () {
+                    makeAjaxRequestWithPace("divAta", "?handler=ReabrirAta", "POST", {
+                        reuniaoId: $("[data-reuniaoid]").data("reuniaoid"),
+                        ataId: $("[data-ataid]").data("ataid")
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmAprovarAta = function () {
+                confirmOperation("Você está aprovando a ata desta reunião, indicando assim que todas informações foram inseridas e todos envolvidos estão de acordo com elas.", function () {
+                    makeAjaxRequestWithPace("divAta", "?handler=AprovarAta", "POST", {
+                        reuniaoId: $("[data-reuniaoid]").data("reuniaoid"),
+                        ataId: $("[data-ataid]").data("ataid")
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmCriarPlanoDeAcao = function () {
+                confirmOperation("Você está criando um plano de ação que será associado a esta reunião.", function () {
+                    makeAjaxRequestWithPace("divAta", "?handler=CriarPlanoDeAcao", "POST", {
+                        reuniaoId: $("[data-reuniaoid]").data("reuniaoid")
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmCancelar = function () {
+                confirmOperation("Você está cancelando esta reunião. Esta operação não poderá ser desfeita.", function () {
+                    makeAjaxRequestWithPace("divReuniaoHeader", "?handler=Cancelar", "POST", {
+                        reuniaoId: $("[data-reuniaoid]").data("reuniaoid")
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmDeleteParticipante = function (participanteId) {
+                confirmOperation("Você está removendo um participante desta ata de reunião.", function () {
+                    makeAjaxRequestWithPace("divParticipantes", "/Reunioes/Atas/GerenciarParticipantes?handler=Delete", "POST", {
+                        reuniaoId: $("[data-reuniaoid]").data("reuniaoid"),
+                        ataId: $("[data-ataid]").data("ataid"),
+                        participanteId: participanteId
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmDeleteAusente = function (ausenteId) {
+                confirmOperation("Você está removendo um ausente desta ata de reunião.", function () {
+                    makeAjaxRequestWithPace("divAusentes", "/Reunioes/Atas/GerenciarAusentes?handler=Delete", "POST", {
+                        reuniaoId: $("[data-reuniaoid]").data("reuniaoid"),
+                        ataId: $("[data-ataid]").data("ataid"),
+                        ausenteId: ausenteId
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmConcluirItemPlanoDeAcao = function (itemId) {
+                confirmOperation("Você está concluindo um item de plano de ação desta reunião.", function () {
+                    makeAjaxRequestWithPace("divPlanoDeAcao", "/Reunioes/PlanosDeAcao/GerenciarItens?handler=ConcluirItem", "POST", {
+                        planoDeAcaoId: $("[data-planodeacaoid]").data("planodeacaoid"),
+                        itemId: itemId
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmCancelarItemPlanoDeAcao = function (itemId) {
+                confirmOperation("Você está cancelando um item de plano de ação desta reunião.", function () {
+                    makeAjaxRequestWithPace("divPlanoDeAcao", "/Reunioes/PlanosDeAcao/GerenciarItens?handler=CancelarItem", "POST", {
+                        planoDeAcaoId: $("[data-planodeacaoid]").data("planodeacaoid"),
+                        itemId: itemId
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmDeleteItemPlanoDeAcao = function (itemId) {
+                confirmOperation("Você está removendo um item de plano de ação desta reunião.", function () {
+                    makeAjaxRequestWithPace("divPlanoDeAcao", "/Reunioes/PlanosDeAcao/GerenciarItens?handler=DeleteItem", "POST", {
+                        planoDeAcaoId: $("[data-planodeacaoid]").data("planodeacaoid"),
+                        itemId: itemId
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmRemoverResponsavel = function (itemId, responsavelId) {
+                confirmOperation("Você está removendo um responsável de um item de plano de ação desta reunião.", function () {
+                    makeAjaxRequestWithPace("divPlanoDeAcao", "/Reunioes/PlanosDeAcao/GerenciarItens?handler=RemoverResponsavel", "POST", {
+                        planoDeAcaoId: $("[data-planodeacaoid]").data("planodeacaoid"),
+                        itemId: itemId,
+                        responsavelId: responsavelId
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+
+            handleConfirmDeleteAssunto = function (assuntoId) {
+                confirmOperation("Você está removendo um assunto desta ata de reunião.", function () {
+                    makeAjaxRequestWithPace("divAusentes", "/Reunioes/Atas/GerenciarAssuntos?handler=Delete", "POST", {
+                        reuniaoId: $("[data-reuniaoid]").data("reuniaoid"),
+                        ataId: $("[data-ataid]").data("ataid"),
+                        assuntoId: assuntoId
+                    }, function () {
+                        location.reload();
+                    });
+                });
+            };
+        </script>
+    }
+}

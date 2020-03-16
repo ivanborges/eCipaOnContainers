@@ -1,0 +1,37 @@
+﻿@page
+@model EditarModel
+@{
+    Layout = null;
+}
+
+<div class="blockableDiv">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-url="/Reunioes/Atas/Ausentes/Editar" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input asp-for="ReuniaoId" type="hidden" value="@Model.ReuniaoId" />
+        <input asp-for="AtaId" type="hidden" value="@Model.AtaId" />
+        <input asp-for="AusenteId" type="hidden" value="@Model.AusenteId" />
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <select asp-for="ReunioesAtasAusentesPut.Justificativa" asp-items="Html.GetEnumSelectList<Furiza.eCipaOnContainers.RazorPages.RestClients.Cipas.Reunioes.JustificativaAusencia>()" class="form-control select2" data-placeholder="Justificativa">
+                        <option></option>
+                    </select>
+                    <span asp-validation-for="ReunioesAtasAusentesPut.Justificativa" style="font-size: 10px; color: #a94442;"></span>
+                </div>
+            </div>
+
+            <div class="col-xs-12">
+                <button class="btn btn-xs btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                    <i class="fa fa-check"></i>
+                    Concluir
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(function () {
+        applyPaceOnAjaxFormSubmit();
+        applyLayoutOnCommonUIElements();
+    });
+</script>

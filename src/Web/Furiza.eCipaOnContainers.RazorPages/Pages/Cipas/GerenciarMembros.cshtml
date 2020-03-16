@@ -1,0 +1,62 @@
+﻿@page
+@model GerenciarMembrosModel
+@{
+    Layout = null;
+}
+
+@if (Model.UsersGetResult == null)
+{
+    <partial name="_NenhumaOcorrenciaParaExibicaoPartial" />
+}
+else
+{
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-url="/Cipas/GerenciarMembros" data-ajax-begin='blockDivForAjaxRequest("divAdicionarMembro")' data-ajax-complete='unblockDivForAjaxRequest("divAdicionarMembro")' data-ajax-success="handlePostAddMember" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input asp-for="CipaId" type="hidden" value="@Model.CipaId" />
+        <input asp-for="CipasMembrosPost.UserName" type="hidden" value="@Model.UsersGetResult.UserName" />
+        <input asp-for="CipasMembrosPost.NomeCompleto" type="hidden" value="@Model.UsersGetResult.FullName" />
+
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Usuário localizado!</h3>
+            </div>
+            <div class="box-body no-padding">
+                <table class="table table-striped">
+                    <tr>
+                        <th class="hidden-xs">Username</th>
+                        <th>Nome</th>
+                        <th class="hidden-xs">Email</th>
+                        <th>Função</th>
+                        <th style="width: 58px"></th>
+                    </tr>
+                    <tr>
+                        <td class="hidden-xs">@Model.UsersGetResult.UserName</td>
+                        <td>@Model.UsersGetResult.FullName</td>
+                        <td class="hidden-xs">@Model.UsersGetResult.Email</td>
+                        <td>
+                            <select asp-for="CipasMembrosPost.Funcao" asp-items="Html.GetEnumSelectList<Furiza.eCipaOnContainers.RazorPages.RestClients.Cipas.Cipas.FuncaoMembro>()" class="form-control select2" data-placeholder="Função">
+                                <option></option>
+                            </select>
+                        </td>
+                        <td style="width: 58px">
+                            <button class="btn btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        handlePostAddMember = function () {
+            alertSuccess("O membro foi adicionado à cipa com sucesso.");
+            $("#divAdicionarMembro").html("");
+        };
+
+        $(function () {
+            applyPaceOnAjaxFormSubmit();
+            applyLayoutOnCommonUIElements();
+        });
+    </script>
+}

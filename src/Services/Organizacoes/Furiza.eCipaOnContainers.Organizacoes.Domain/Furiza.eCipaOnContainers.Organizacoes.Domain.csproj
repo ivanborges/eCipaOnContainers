@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Furiza.Base.Core.Exceptions" Version="1.0.6" />
+    <PackageReference Include="Furiza.Base.Core.SeedWork" Version="1.0.6" />
+    <PackageReference Include="mediatr" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\EmpresaAggregate\" />
+    <Folder Include="Models\OrgaoAggregate\" />
+    <Folder Include="ValueObjects\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,58 @@
+﻿@model Furiza.eCipaOnContainers.RazorPages.RestClients.Cipas.Cipas.CipasGetManyResult
+
+@if (Model == null || Model.Cipas == null || !Model.Cipas.Any())
+{
+    <partial name="_NenhumaOcorrenciaParaExibicaoPartial" />
+}
+else
+{
+    <div class="box box-widget">
+        <div class="box-body">
+            <table id="tableResult" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th class="hidden-xs hidden-sm" style="width: 80px">Empresa</th>
+                        <th>Mandato</th>
+                        <th class="hidden-xs hidden-sm" style="width: 80px">Status</th>
+                        <th class="hidden-xs hidden-sm hidden-md" style="width: 125px">Data de Criação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cipa in Model.Cipas)
+                    {
+                        <tr>
+                            <td><a asp-page="/Cipas/Detalhar" asp-route-id="@cipa.Id">@cipa.Codigo</a></td>
+                            <td class="hidden-xs hidden-sm">@cipa.CodigoEmpresa</td>
+                            <td>@cipa.Mandato_Inicio?.ToString("dd/MM/yyyy") - @cipa.Mandato_Termino?.ToString("dd/MM/yyyy")</td>
+
+                            @{ 
+                                var corStatusFundo = string.Empty;
+                                var corStatusLetra = string.Empty;
+
+                                if (cipa.Status == RestClients.Cipas.StatusAtividade.Ativo)
+                                {
+                                    corStatusFundo = "background-color: #00a65a;";
+                                    corStatusLetra = "color: #ffffff;";
+                                }
+                                else
+                                {
+                                    corStatusFundo = "background-color: #f39c12;";
+                                    corStatusLetra = "color: #ffffff;";
+                                }
+                            }
+
+                            <td class="hidden-xs hidden-sm" style="vertical-align: middle; text-align: center; @corStatusFundo">
+                                <span style="font-weight: 600; @corStatusLetra">
+                                    @cipa.Status
+                                </span>
+                            </td>
+
+                            <td class="hidden-xs hidden-sm hidden-md">@cipa.CreationDate?.ToLocalTime()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

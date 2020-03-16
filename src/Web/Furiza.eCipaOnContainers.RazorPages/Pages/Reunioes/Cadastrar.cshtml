@@ -1,0 +1,72 @@
+﻿@page
+@model CadastrarModel
+@{
+    Layout = null;
+}
+
+<div class="box box-widget blockableDiv" style="margin-bottom: 0; box-shadow: 0 0 0 0">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-url="/Reunioes/Cadastrar" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input asp-for="ReunioesPost.CipaId" type="hidden" value="@Model.CipaId" />
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-2">
+                    <div class="form-group">
+                        <select asp-for="ReunioesPost.MesDeReferencia" asp-items="Html.GetEnumSelectList<Furiza.eCipaOnContainers.RazorPages.RestClients.Cipas.Mes>()" class="form-control select2" data-placeholder="Mês de Referência">
+                            <option></option>
+                        </select>
+                        <span asp-validation-for="ReunioesPost.MesDeReferencia" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group">
+                        <div class="input-group date">
+                            <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                            <input asp-for="ReunioesPost.DataPrevista" type="text" class="form-control pull-right datepicker" placeholder="Data Prevista">
+                        </div>
+                        <span asp-validation-for="ReunioesPost.DataPrevista" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon"><i class="fa fa-clock-o"></i></div>
+                            <input asp-for="ReunioesPost.HorarioPrevisto" type="text" class="form-control pull-right timepicker" placeholder="Horário Previsto">
+                        </div>
+                        <span asp-validation-for="ReunioesPost.HorarioPrevisto" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input asp-for="ReunioesPost.Local" type="text" class="form-control" placeholder="Local">
+
+                            <span class="input-group-addon" data-toggle="tooltip" title="Extraordinária?">
+                                <input asp-for="ReunioesPost.Extraordinaria" type="checkbox" class="flat-red" />
+                            </span>
+                        </div>
+                        <span asp-validation-for="ReunioesPost.Local" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn btn-xs btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                        <i class="fa fa-check"></i>
+                        Concluir
+                    </button>
+                </div>
+            </div>            
+        </div>
+    </form>
+</div>
+
+<script>
+    $(function () {
+        applyPaceOnAjaxFormSubmit();
+        applyLayoutOnCommonUIElements();
+    });
+</script>

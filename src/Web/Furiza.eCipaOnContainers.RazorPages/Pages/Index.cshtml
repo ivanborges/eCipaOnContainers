@@ -1,0 +1,81 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+@if (Model.CipasGetAtivasDoUsuarioLogadoResult?.Cipas == null || !Model.CipasGetAtivasDoUsuarioLogadoResult.Cipas.Any())
+{
+    <div class="text-center">
+        <h1 class="display-4" style="margin-top: 5px; margin-bottom: 5px">Bem vindo</h1>
+        <p class="lead">No momento, você não é membro de nenhuma CIPA ativa.</p>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4" style="margin-top: 5px; margin-bottom: 5px">Bem vindo</h1>
+        <p class="lead">Você é membro das seguintes CIPAS:</p>
+    </div>
+
+    <div class="row">
+        @foreach (var cipa in Model.CipasGetAtivasDoUsuarioLogadoResult.Cipas)
+        {
+            <div class="col-xs-12 col-sm-6">
+                <div class="small-box bg-purple">
+                    <div class="inner" style="background-color: #ffffff; color: #333333;">
+                        <h3>@cipa.Codigo</h3>
+
+                        <p>@cipa.Nome</p>
+
+                        @{
+                            var progressClass = "danger";
+                            var progressPercent = 100;
+                            var progressLabel = "Expirado";
+
+                            if (cipa.Mandato_Inicio.HasValue && cipa.Mandato_Termino.HasValue)
+                            {
+                                if (cipa.Mandato_Inicio.Value.Date <= DateTime.Now.Date && cipa.Mandato_Termino.Value.Date >= DateTime.Now.Date)
+                                {
+                                    progressPercent = Convert.ToInt32(Math.Round((((DateTime.Now - cipa.Mandato_Inicio.Value).TotalDays) / ((cipa.Mandato_Termino.Value - cipa.Mandato_Inicio.Value).TotalDays)) * 100));
+
+                                    if (progressPercent <= 50)
+                                    {
+                                        progressClass = "success";
+                                        progressLabel = "Em dia";
+                                    }
+                                    else if (progressPercent <= 80)
+                                    {
+                                        progressClass = "warning";
+                                        progressLabel = "Meia Vida";
+                                    }
+                                    else if (progressPercent <= 99)
+                                    {
+                                        progressLabel = "Expirando";
+                                    }
+                                }
+                                else if (cipa.Mandato_Inicio.Value.Date > DateTime.Now.Date)
+                                {
+                                    progressPercent = 0;
+                                    progressClass = "primary";
+                                    progressLabel = "Aguardando Início";
+                                }
+                            }
+                        }
+                        <div class="progress progress-xxs active" style="margin-bottom: 7px" data-toggle="tooltip" title="Progressão da Vigência: @progressPercent.ToString() corrida">
+                            <div class="progress-bar progress-bar-@progressClass progress-bar-striped" role="progressbar" aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100" style="width: @progressPercent%">
+                                <span class="sr-only">@progressPercent.ToString()% Complete</span>
+                            </div>
+                        </div>
+
+                        Mandato: @cipa.Mandato_Inicio?.ToString("dd/MM/yyyy") - @cipa.Mandato_Termino?.ToString("dd/MM/yyyy") <span style="margin-left: 10px" class="label label-@progressClass">@progressLabel</span>
+                    </div>
+
+                    <a asp-page="/Cipas/Detalhar" asp-route-id="@cipa.Id" class="small-box-footer">
+                        Visualizar Detalhes <i class="fa fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+}

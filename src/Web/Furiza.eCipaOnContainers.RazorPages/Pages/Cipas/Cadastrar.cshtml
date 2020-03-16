@@ -1,0 +1,65 @@
+﻿@page
+@model CadastrarModel
+@{
+    ViewData["Title"] = "Cipas > Cadastrar";
+}
+
+<div class="box blockableDiv">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-4">
+                    <div class="form-group">
+                        <select asp-for="CipasPost.CodigoEmpresa" class="form-control select2" data-placeholder="Empresa">
+                            <option></option>
+                            <optgroup label="Grupo Cemig">
+                                @{
+                                    foreach (var empresa in Model.EmpresasGetManyResult.Empresas)
+                                    {
+                                        <option value="@empresa.Codigo">@empresa.Nome</option>
+                                    }
+                                }
+                            </optgroup>
+                            <optgroup label="Fornecedores">
+                                @{
+                                    foreach (var fornecedor in Model.FornecedoresGetManyResult.Fornecedores)
+                                    {
+                                        <option value="@fornecedor.Codigo">@fornecedor.Nome</option>
+                                    }
+                                }
+                            </optgroup>
+                        </select>
+                        <span asp-validation-for="CipasPost.CodigoEmpresa" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4">
+                    <div class="form-group">
+                        <div class="input-group date">
+                            <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                            <input asp-for="CipasPost.InicioDoMandato" type="text" class="form-control pull-right datepicker" placeholder="Início do Mandato">
+                        </div>
+                        <span asp-validation-for="CipasPost.InicioDoMandato" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4">
+                    <div class="form-group">
+                        <div class="input-group date">
+                            <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                            <input asp-for="CipasPost.TerminoDoMandato" type="text" class="form-control pull-right datepicker" placeholder="Término do Mandato">
+                        </div>                        
+                        <span asp-validation-for="CipasPost.TerminoDoMandato" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-footer">
+            <button class="btn btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                <i class="fa fa-check"></i>
+                Concluir
+            </button>
+        </div>
+    </form>
+</div>

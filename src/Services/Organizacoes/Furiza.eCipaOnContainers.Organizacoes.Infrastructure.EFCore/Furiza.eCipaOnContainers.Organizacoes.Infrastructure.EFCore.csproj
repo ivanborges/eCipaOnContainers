@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20190221220732_EntitiesCipaPlanoDeAcaoReuniao.cs" />
+    <Compile Remove="Migrations\20190221222025_EntitiesCipaPlanoDeAcaoReuniao.cs" />
+    <Compile Remove="Migrations\20190226133641_EntitiesCipaPlanoDeAcaoReuniao.cs" />
+    <Compile Remove="Migrations\20190226194737_EntitiesCipaPlanoDeAcaoReuniao.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.sqlserver" Version="2.2.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.tools" Version="2.2.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Furiza.eCipaOnContainers.Organizacoes.Domain\Furiza.eCipaOnContainers.Organizacoes.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

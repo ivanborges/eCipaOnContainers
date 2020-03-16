@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="furiza.audit.abstractions" Version="1.0.1" />
+    <PackageReference Include="furiza.base.core.identity.abstractions" Version="2.3.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.abstractions" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Furiza.eCipaOnContainers.Cipas.Domain\Furiza.eCipaOnContainers.Cipas.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

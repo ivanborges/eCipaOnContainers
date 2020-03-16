@@ -1,0 +1,72 @@
+﻿@page
+@model GerenciarItensModel
+@{
+    Layout = null;
+}
+
+@if (Model.Membros == null)
+{
+    <partial name="_NenhumaOcorrenciaParaExibicaoPartial" />
+}
+else
+{
+    <div class="box box-widget blockableDiv" style="margin-bottom: 0; box-shadow: 0 0 0 0">
+        <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-url="/Reunioes/PlanosDeAcao/GerenciarItens" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+            <input asp-for="ReuniaoId" type="hidden" value="@Model.ReuniaoId" />
+            <input asp-for="PlanoDeAcaoId" type="hidden" value="@Model.PlanoDeAcaoId" />
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-4">
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                                <input asp-for="Prazo" type="text" class="form-control pull-right datepicker" placeholder="Prazo">
+                            </div>
+                            <span asp-validation-for="Prazo" style="font-size: 10px; color: #a94442;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6 col-sm-4">
+                        <div class="form-group">
+                            <select asp-for="UserName" asp-items="@(new SelectList(Model.Membros, "UserName", "NomeCompleto"))" class="form-control select2" data-placeholder="Responsável" style="width: 100%;">
+                                <option></option>
+                            </select>
+                            <span asp-validation-for="UserName" style="font-size: 10px; color: #a94442;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-4">
+                        <div class="form-group has-feedback">
+                            <input asp-for="Acao" type="text" class="form-control" placeholder="Ação">
+                            <span class="glyphicon glyphicon-tasks form-control-feedback"></span>
+                            <span asp-validation-for="Acao" style="font-size: 10px; color: #a94442;"></span>
+                        </div>
+                    </div>
+
+                    @* //TODO: não lembro qual a finalidade deste campo Descrição... acho que ele está sobrando. Por enquanto, vai ficar omitido. *@
+                    @*<div class="col-xs-12 col-sm-8">
+                        <div class="form-group has-feedback">
+                            <input asp-for="Descricao" type="text" class="form-control" placeholder="Descrição">
+                            <span class="glyphicon glyphicon-map-marker form-control-feedback"></span>
+                            <span asp-validation-for="Descricao" style="font-size: 10px; color: #a94442;"></span>
+                        </div>
+                    </div>*@
+
+                    <div class="col-xs-12">
+                        <button class="btn btn-xs btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                            <i class="fa fa-check"></i>
+                            Concluir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        $(function () {
+            applyPaceOnAjaxFormSubmit();
+            applyLayoutOnCommonUIElements();
+        });
+    </script>
+}

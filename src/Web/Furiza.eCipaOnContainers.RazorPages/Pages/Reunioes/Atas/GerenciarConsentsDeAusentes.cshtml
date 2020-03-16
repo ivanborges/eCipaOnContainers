@@ -1,0 +1,46 @@
+﻿@page
+@model GerenciarConsentsDeAusentesModel
+@{
+    Layout = null;
+}
+
+<div class="blockableDiv">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-url="/Reunioes/Atas/GerenciarConsentsDeAusentes" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input asp-for="ReuniaoId" type="hidden" value="@Model.ReuniaoId" />
+        <input asp-for="AtaId" type="hidden" value="@Model.AtaId" />
+        <input asp-for="AusenteId" type="hidden" value="@Model.AusenteId" />
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <select asp-for="ReunioesAtasAusentesConsentsPost.Value" class="form-control select2" data-placeholder="Informe uma opção para seu consent">
+                        <option></option>
+                        <option value="false">Não concordo com a justificativa de minha ausência nesta ata de reunião.</option>
+                        <option value="true">Concordo com a justificativa de minha ausência nesta ata de reunião.</option>
+                    </select>
+                    <span asp-validation-for="ReunioesAtasAusentesConsentsPost.Value" style="font-size: 10px; color: #a94442;"></span>
+                </div>
+            </div>
+
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <textarea rows="3" asp-for="ReunioesAtasAusentesConsentsPost.Justificativa" type="text" class="form-control" placeholder="Comentário / Justificativa"></textarea>
+                    <span asp-validation-for="ReunioesAtasAusentesConsentsPost.Justificativa" style="font-size: 10px; color: #a94442;"></span>
+                </div>
+            </div>
+
+            <div class="col-xs-12">
+                <button class="btn btn-xs btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                    <i class="fa fa-check"></i>
+                    Concluir
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(function () {
+        applyPaceOnAjaxFormSubmit();
+        applyLayoutOnCommonUIElements();
+    });
+</script>

@@ -1,0 +1,107 @@
+﻿@page
+@model CadastrarModel
+@{
+    ViewData["Title"] = "Usuários > Cadastrar";
+}
+
+<div class="box blockableDiv">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-2">
+                    <div class="form-group has-feedback">
+                        <input asp-for="UsersPost.UserName" type="text" class="form-control" placeholder="Login">
+                        <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                        <span asp-validation-for="UsersPost.UserName" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-5">
+                    <div class="form-group has-feedback">
+                        <input asp-for="UsersPost.FullName" type="text" class="form-control" placeholder="Nome Completo">
+                        <span class="glyphicon glyphicon-pencil form-control-feedback"></span>
+                        <span asp-validation-for="UsersPost.FullName" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-5">
+                    <div class="form-group has-feedback">
+                        <input asp-for="UsersPost.Email" type="text" class="form-control" placeholder="Email">
+                        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                        <span asp-validation-for="UsersPost.Email" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-2">
+                    <div class="form-group">
+                        <select asp-for="UsersPost.HiringType" class="form-control select2" data-placeholder="Tipo de Usuário">
+                            <option></option>
+                            <option value="@Furiza.Base.Core.Identity.Abstractions.FurizaHiringTypes.InHouse">Empregado Próprio</option>
+                            <option value="@Furiza.Base.Core.Identity.Abstractions.FurizaHiringTypes.Outsourced">Empregado  Terceirizado</option>
+                        </select>
+                        <span asp-validation-for="UsersPost.HiringType" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4">
+                    <div class="form-group">
+                        <select asp-for="UsersPost.Company" class="form-control select2" data-placeholder="Empresa">
+                            <option></option>
+                            <optgroup label="Grupo Cemig">
+                                @{
+                                    foreach (var empresa in Model.EmpresasGetManyResult.Empresas)
+                                    {
+                                        <option value="@empresa.Codigo">@empresa.Nome</option>
+                                    }
+                                }
+                            </optgroup>
+                            <optgroup label="Fornecedores">
+                                @{
+                                    foreach (var fornecedor in Model.FornecedoresGetManyResult.Fornecedores)
+                                    {
+                                        <option value="@fornecedor.Codigo">@fornecedor.Nome</option>
+                                    }
+                                }
+                            </optgroup>
+                        </select>
+                        <span asp-validation-for="UsersPost.Company" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4">
+                    <div class="form-group">
+                        @{
+                            foreach (var orgao in Model.OrgaosGetManyResult.Orgaos)
+                            {
+                                orgao.Nome = $"{orgao.Codigo.Value.ToString().PadLeft(4, '0')} - {orgao.Nome}";
+                            }
+                        }
+                        <select asp-for="UsersPost.Department" asp-items="@(new SelectList(Model.OrgaosGetManyResult.Orgaos, "Codigo", "Nome"))" class="form-control select2" data-placeholder="Órgão">
+                            <option></option>
+                        </select>
+                        <span asp-validation-for="UsersPost.Department" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-2">
+                    <div class="form-group">
+                        <select asp-for="RoleAssignmentsPost.RoleName" class="form-control select2" data-placeholder="Role">
+                            <option></option>
+                            <option value="@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Viewer">@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Viewer</option>
+                            <option value="@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Editor">@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Editor</option>
+                            <option value="@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Administrator">@Furiza.Base.Core.Identity.Abstractions.FurizaMasterRoles.Administrator</option>
+                        </select>
+                        <span asp-validation-for="RoleAssignmentsPost.RoleName" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-footer">
+            <button class="btn btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                <i class="fa fa-check"></i>
+                Concluir
+            </button>
+        </div>
+    </form>
+</div>

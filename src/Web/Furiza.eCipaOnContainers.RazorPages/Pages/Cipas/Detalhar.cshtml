@@ -1,0 +1,548 @@
+﻿@page "{id}"
+@model DetalharModel
+@inject Furiza.Base.Core.Identity.Abstractions.IUserPrincipalBuilder userPrincipalBuilder
+@{
+    ViewData["Title"] = "Cipas > Detalhar";
+}
+
+@if (Model.CipasGetResult != null)
+{
+    <div id="divCipaHeader" class="box box-widget widget-user" style="margin-bottom: 0px" data-cipaid="@Model.CipasGetResult.Id">
+        @{
+            var headerColor = "";
+            var headerBgColor = "";
+
+            if (Model.CipasGetResult.Status == RestClients.Cipas.StatusAtividade.Ativo)
+            {
+                headerColor = "#b8c7ce";
+                headerBgColor = "#222d32";
+            }
+            else
+            {
+                headerColor = "#222d32";
+                headerBgColor = "#b8c7ce";
+            }
+        }
+
+        <div class="widget-user-header" style="background-color: @headerBgColor; color: @headerColor; height: 90px">
+            <h3 class="widget-user-username">@Model.CipasGetResult.Codigo</h3>
+            @*<h5 class="widget-user-desc">@Model.CipasGetResult.Codigo</h5>*@
+        </div>
+
+        <div class="widget-user-image" style="top: 20px; margin-left: -60px">
+            <img class="img-responsive img-circle" src="~/custom/img/cipa120px.png" style="width: 120px">
+        </div>
+
+        <div class="box-footer" style="padding-bottom: 0px; min-height: 60px">
+            <div class="box-tools pull-right action-buttons">
+                @{
+                    var botaoStatusIcon = "";
+                    var botaoStatusLabel = "";
+
+                    if (Model.CipasGetResult.Status == RestClients.Cipas.StatusAtividade.Ativo)
+                    {
+                        botaoStatusIcon = "power-off";
+                        botaoStatusLabel = "Inativar";
+                    }
+                    else
+                    {
+                        botaoStatusIcon = "plug";
+                        botaoStatusLabel = "Ativar";
+                    }
+
+                    if (userPrincipalBuilder.HasEditorRights())
+                    {
+                        <a href="#" data-ajax-anchor="handleConfirmAlternarStatusAtividade()" class="btn btn-box-tool" data-toggle="tooltip" title="@botaoStatusLabel">
+                            <i class="fa fa-@botaoStatusIcon"></i>
+                        </a>
+
+                        <a asp-page="/Cipas/Editar" asp-route-id="@Model.CipasGetResult.Id" class="btn btn-box-tool" data-toggle="tooltip" title="Editar">
+                            <i class="fa fa-pencil"></i>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="box box-widget">
+        <div class="box-footer no-padding">
+            <ul class="nav nav-pills nav-stacked">
+                <li>
+                    <a>
+                        <b>Empresa</b>
+                        <span class="pull-right" style="font-size: 14px">@Model.CipasGetResult.CodigoEmpresa.Value</span>
+                    </a>
+                </li>
+                <li>
+                    <a>
+                        @{
+                            var progressClass = "danger";
+                            var progressPercent = 100;
+                            var progressLabel = "Expirado";
+
+                            if (Model.CipasGetResult.Mandato_Inicio.HasValue && Model.CipasGetResult.Mandato_Termino.HasValue)
+                            {
+                                if (Model.CipasGetResult.Mandato_Inicio.Value.Date <= DateTime.Now.Date && Model.CipasGetResult.Mandato_Termino.Value.Date >= DateTime.Now.Date)
+                                {
+                                    progressPercent = Convert.ToInt32(Math.Round((((DateTime.Now - Model.CipasGetResult.Mandato_Inicio.Value).TotalDays) / ((Model.CipasGetResult.Mandato_Termino.Value - Model.CipasGetResult.Mandato_Inicio.Value).TotalDays)) * 100));
+
+                                    if (progressPercent <= 50)
+                                    {
+                                        progressClass = "success";
+                                        progressLabel = "Em dia";
+                                    }
+                                    else if (progressPercent <= 80)
+                                    {
+                                        progressClass = "warning";
+                                        progressLabel = "Meia Vida";
+                                    }
+                                    else if (progressPercent <= 99)
+                                    {
+                                        progressLabel = "A Expirar";
+                                    }
+                                }
+                                else if (Model.CipasGetResult.Mandato_Inicio.Value.Date > DateTime.Now.Date)
+                                {
+                                    progressPercent = 0;
+                                    progressClass = "primary";
+                                    progressLabel = "Aguardando Início";
+                                }
+                            }
+                        }
+
+                        <b>Mandato</b>
+                        <span class="pull-right" style="font-size: 14px">@Model.CipasGetResult.Mandato_Inicio?.ToString("dd/MM/yyyy") - @Model.CipasGetResult.Mandato_Termino?.ToString("dd/MM/yyyy") <span style="margin-left: 10px" class="label label-@progressClass">@progressLabel</span></span>
+
+                        <div class="progress progress-xxs active" style="margin-bottom: 0px; margin-top: 5px" data-toggle="tooltip" title="Progressão da Vigência: @progressPercent.ToString() corrida">
+                            <div class="progress-bar progress-bar-@progressClass progress-bar-striped" role="progressbar" aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100" style="width: @progressPercent%">
+                                <span class="sr-only">@progressPercent.ToString()% Complete</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a>
+                        @{
+                            var labelStatusClass = string.Empty;
+
+                            if (Model.CipasGetResult.Status == RestClients.Cipas.StatusAtividade.Ativo)
+                            {
+                                labelStatusClass = "label-success";
+                            }
+                            else
+                            {
+                                labelStatusClass = "label-warning";
+                            }
+                        }
+
+                        <b>Status</b>
+                        <span class="label @labelStatusClass pull-right" style="font-size: 14px">@Model.CipasGetResult.Status</span>
+                    </a>
+                </li>                
+                <li>
+                    <a>
+                        <b>Cadastrada</b>
+                        <span class="pull-right" style="font-size: 14px">em @Model.CipasGetResult.CreationDate?.ToLocalTime() por @Model.CipasGetResult.CreationUser</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="divEstabelecimentos" class="box box-widget">
+        <div class="box-header">
+            @{
+                var totalEstabelecimentos = Model.CipasEstabelecimentosGetResult?.Estabelecimentos?.Count() ?? 0;
+            }
+            <h3 class="box-title">Estabelecimentos (@totalEstabelecimentos)</h3>
+
+            <div class="box-tools pull-right action-buttons">
+                @if (userPrincipalBuilder.HasEditorRights())
+                {
+                    <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "GerenciarEstabelecimentos", pageHandler: "LocalizarEstabelecimentoPartial", values: new { cipaId = Model.CipasGetResult.Id })' data-ajax-method="get" data-ajax-success="showFormOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Adicionar Estabelecimento">
+                        <i class="fa fa-industry"></i>
+                    </a>
+                }
+
+                <a class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="box-footer no-padding">
+            <ul class="nav nav-pills nav-stacked">
+                @if (totalEstabelecimentos > 0)
+                {
+                    foreach (var estabelecimento in Model.CipasEstabelecimentosGetResult.Estabelecimentos.OrderBy(e => e.Tipo))
+                    {
+                        var estabelecimentoLabelTipoClass = string.Empty;
+
+                        if (estabelecimento.Tipo == RestClients.Cipas.Cipas.TipoEstabelecimento.Principal)
+                        {
+                            estabelecimentoLabelTipoClass = "label-primary";
+                        }
+                        else
+                        {
+                            estabelecimentoLabelTipoClass = "label-default";
+                        }
+
+                        <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                            <b>
+                                <a asp-page="/Estabelecimentos/Detalhar" asp-route-id="@estabelecimento.Id">
+                                    @estabelecimento.Codigo
+                                </a>
+                            </b>
+
+                            <div class="pull-right action-buttons" style="margin-top: -2px">
+                                <span class="label @estabelecimentoLabelTipoClass" style="font-size: 14px; padding: 0px 5px 1px 5px">@estabelecimento.Tipo</span>
+
+                                @if (userPrincipalBuilder.HasEditorRights())
+                                {
+                                    <a href="#" data-ajax-anchor="handleConfirmDeleteEstabelecimento('@estabelecimento.RelId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                        <i class="fa fa-times"></i>
+                                    </a>
+                                }
+                            </div>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div id="divReunioes" class="box box-widget">
+        <div class="box-header">
+            @{
+                var totalReunioes = Model.CipasReunioesGetResult?.Reunioes?.Count() ?? 0;
+            }
+            <h3 class="box-title">Reuniões (@totalReunioes)</h3>
+
+            <div class="box-tools pull-right action-buttons">
+                @if (userPrincipalBuilder.HasEditorRights())
+                {
+                    <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "/Reunioes/Cadastrar", values: new { cipaId = Model.CipasGetResult.Id })' data-ajax-method="get" data-ajax-update="#divCadastrarReuniao" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Cadastrar Reunião">
+                        <i class="fa fa-share-alt"></i>
+                    </a>
+                }                    
+
+                <a class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="box-footer no-padding">
+            <div id="divCadastrarReuniao"></div>
+
+            <ul class="nav nav-pills nav-stacked">
+                @if (totalReunioes > 0)
+                {
+                    foreach (var reuniao in Model.CipasReunioesGetResult.Reunioes)
+                    {
+                        var reuniaoLabelStatusClass = string.Empty;
+                        var reuniaoIconeExtraStatus = string.Empty;
+
+                        if (reuniao.Status == RestClients.Cipas.StatusAgendamento.Realizado)
+                        {
+                            reuniaoLabelStatusClass = "label-primary";
+                        }
+                        else if (reuniao.Status == RestClients.Cipas.StatusAgendamento.Cancelado)
+                        {
+                            reuniaoLabelStatusClass = "label-danger";
+                        }
+                        else
+                        {
+                            reuniaoLabelStatusClass = "label-default";
+
+                            if (reuniao.Status == RestClients.Cipas.StatusAgendamento.Adiado)
+                            {
+                                reuniaoIconeExtraStatus = "<i class=\"fa fa-arrow-circle-down\" style=\"color: #dd4b39;\"></i> ";
+                            }
+                            else if (reuniao.Status == RestClients.Cipas.StatusAgendamento.Adiantado)
+                            {
+                                reuniaoIconeExtraStatus = "<i class=\"fa fa-arrow-circle-up\" style=\"color: #dd4b39;\"></i> ";
+                            }
+                        }
+
+                        <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                            <span data-toggle="tooltip" title="ref. @reuniao.MesDeReferencia" class="badge bg-purple-gradient" style="margin-right: 5px">@Convert.ToInt32(reuniao.MesDeReferencia).ToString().PadLeft(2, '0')</span>
+
+                            <b>
+                                <a asp-page="/Reunioes/Detalhar" asp-route-id="@reuniao.Id">
+                                    @reuniao.DataPrevista?.ToString("dd/MM/yyyy - HH:mm")
+                                </a>
+                            </b>
+
+                            <span class="action-buttons">
+                                @if (reuniao.Extraordinaria.HasValue && reuniao.Extraordinaria.Value)
+                                {
+                                    <a style="padding-left: 5px; color: #dd4b39" data-toggle="tooltip" title="Extraordinária">
+                                        <i class="fa fa-share-alt"></i>
+                                    </a>
+                                }
+
+                                @if (reuniao.PlanoDeAcaoId.HasValue)
+                                {
+                                    <a asp-page="/PlanosDeAcao/Detalhar" asp-route-id="@reuniao.PlanoDeAcaoId" style="padding-left: 5px; color: #605ca8;" data-toggle="tooltip" title="Plano de Ação">
+                                        <i class="fa fa-crosshairs"></i>
+                                    </a>
+                                }
+                            </span>
+
+                            <div class="pull-right action-buttons">
+                                <span class="label @reuniaoLabelStatusClass" style="font-size: 14px; padding: 0px 5px 1px 5px">@Html.Raw(reuniaoIconeExtraStatus) @reuniao.Status</span>
+                            </div>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div id="divMembros" class="box box-widget">
+        <div class="box-header">
+            @{
+                var totalMembros = Model.CipasGetResult.Membros?.Count() ?? 0;
+            }
+            <h3 class="box-title">Membros (@totalMembros)</h3>
+
+            <div class="box-tools pull-right action-buttons">
+                @if (userPrincipalBuilder.HasEditorRights())
+                {
+                    <a href="#" data-ajax="true" data-ajax-url='@Url.Page(pageName: "GerenciarMembros", pageHandler: "LocalizarMembroPartial", values: new { cipaId = Model.CipasGetResult.Id })' data-ajax-method="get" data-ajax-success="showFormOnBootbox" data-ajax-failure="handleUserInteractionInAjaxFailure" class="btn btn-box-tool" data-toggle="tooltip" title="Adicionar Membro">
+                        <i class="fa fa-user-circle"></i>
+                    </a>
+                }                    
+
+                <a class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="box-footer no-padding">
+            <ul class="nav nav-pills nav-stacked">
+                @{
+                    if (totalMembros > 0)
+                    {
+                        var presidente = Model.CipasGetResult.Membros.FirstOrDefault(m => m.Funcao == RestClients.Cipas.Cipas.FuncaoMembro.Presidente);
+                        if (presidente != null)
+                        {
+                            var presidenteDisplayAs = !string.IsNullOrWhiteSpace(presidente.NomeCompleto)
+                                ? presidente.NomeCompleto
+                                : presidente.UserName;
+
+                            <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                                <b>@presidenteDisplayAs</b>
+
+                                <div class="pull-right action-buttons" style="margin-top: -2px">
+                                    <span class="label label-warning" style="font-size: 14px; padding: 0px 5px 1px 5px; margin-right: 8px"><i class="fa fa-star" style="color: #ffeb00; font-size: 10px"></i><i class="fa fa-star" style="color: #ffeb00; padding-right: 3px; font-size: 10px"></i> @RestClients.Cipas.Cipas.FuncaoMembro.Presidente.GetDisplayAs()</span>
+
+                                    @if (userPrincipalBuilder.HasEditorRights())
+                                    {
+                                        <a href="#" data-ajax-anchor="handleConfirmDeleteMember('@presidente.MembroId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    }
+
+                                </div>
+                            </li>
+                        }
+
+                        var vicepresidente = Model.CipasGetResult.Membros.FirstOrDefault(m => m.Funcao == RestClients.Cipas.Cipas.FuncaoMembro.VicePresidente);
+                        if (vicepresidente != null)
+                        {
+                            var vicepresidenteDisplayAs = !string.IsNullOrWhiteSpace(vicepresidente.NomeCompleto)
+                                ? vicepresidente.NomeCompleto
+                                : vicepresidente.UserName;
+
+                            <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                                <b>@vicepresidenteDisplayAs</b>
+
+                                <div class="pull-right action-buttons" style="margin-top: -2px">
+                                    <span class="label label-warning" style="font-size: 14px; padding: 0px 5px 1px 5px; margin-right: 8px"><i class="fa fa-star" style="color: #ffeb00; padding-right: 3px; font-size: 10px"></i> @RestClients.Cipas.Cipas.FuncaoMembro.VicePresidente.GetDisplayAs()</span>
+
+                                    @if (userPrincipalBuilder.HasEditorRights())
+                                    {
+                                        <a href="#" data-ajax-anchor="handleConfirmDeleteMember('@vicepresidente.MembroId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    }
+
+                                </div>
+                            </li>
+                        }
+
+                        foreach (var secretario in Model.CipasGetResult.Membros.Where(m => m.Funcao == RestClients.Cipas.Cipas.FuncaoMembro.Secretário))
+                        {
+                            var secretarioDisplayAs = !string.IsNullOrWhiteSpace(secretario.NomeCompleto)
+                                ? secretario.NomeCompleto
+                                : secretario.UserName;
+
+                            <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                                <b>@secretarioDisplayAs</b>
+
+                                <div class="pull-right action-buttons" style="margin-top: -2px">
+                                    <span class="label label-default" style="font-size: 14px; padding: 0px 5px 1px 5px; margin-right: 8px">@RestClients.Cipas.Cipas.FuncaoMembro.Secretário.GetDisplayAs()</span>
+
+                                    @if (userPrincipalBuilder.HasEditorRights())
+                                    {
+                                        <a href="#" data-ajax-anchor="handleConfirmDeleteMember('@secretario.MembroId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </li>
+                        }
+
+                        foreach (var tEleito in Model.CipasGetResult.Membros.Where(m => m.Funcao == RestClients.Cipas.Cipas.FuncaoMembro.TitularEleito))
+                        {
+                            var tEleitoDisplayAs = !string.IsNullOrWhiteSpace(tEleito.NomeCompleto)
+                                ? tEleito.NomeCompleto
+                                : tEleito.UserName;
+
+                            <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                                <b>@tEleitoDisplayAs</b>
+
+                                <div class="pull-right action-buttons" style="margin-top: -2px">
+                                    <span class="label label-primary" style="font-size: 14px; padding: 0px 5px 1px 5px; margin-right: 8px">@RestClients.Cipas.Cipas.FuncaoMembro.TitularEleito.GetDisplayAs()</span> @*//TODO: tentar pegar o display do enum*@
+
+                                    @if (userPrincipalBuilder.HasEditorRights())
+                                    {
+                                        <a href="#" data-ajax-anchor="handleConfirmDeleteMember('@tEleito.MembroId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </li>
+                        }
+
+                        foreach (var tIndicado in Model.CipasGetResult.Membros.Where(m => m.Funcao == RestClients.Cipas.Cipas.FuncaoMembro.TitularIndicado))
+                        {
+                            var tIndicadoDisplayAs = !string.IsNullOrWhiteSpace(tIndicado.NomeCompleto)
+                                ? tIndicado.NomeCompleto
+                                : tIndicado.UserName;
+
+                            <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                                <b>@tIndicadoDisplayAs</b>
+
+                                <div class="pull-right action-buttons" style="margin-top: -2px">
+                                    <span class="label label-primary" style="font-size: 14px; padding: 0px 5px 1px 5px; margin-right: 8px">@RestClients.Cipas.Cipas.FuncaoMembro.TitularIndicado.GetDisplayAs()</span>
+
+                                    @if (userPrincipalBuilder.HasEditorRights())
+                                    {
+                                        <a href="#" data-ajax-anchor="handleConfirmDeleteMember('@tIndicado.MembroId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </li>
+                        }
+
+                        foreach (var sEleito in Model.CipasGetResult.Membros.Where(m => m.Funcao == RestClients.Cipas.Cipas.FuncaoMembro.SuplenteEleito))
+                        {
+                            var sEleitoDisplayAs = !string.IsNullOrWhiteSpace(sEleito.NomeCompleto)
+                                ? sEleito.NomeCompleto
+                                : sEleito.UserName;
+
+                            <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                                <b>@sEleitoDisplayAs</b>
+
+                                <div class="pull-right action-buttons" style="margin-top: -2px">
+                                    <span class="label label-primary" style="font-size: 14px; padding: 0px 5px 1px 5px; margin-right: 8px">@RestClients.Cipas.Cipas.FuncaoMembro.SuplenteEleito.GetDisplayAs()</span>
+
+                                    @if (userPrincipalBuilder.HasEditorRights())
+                                    {
+                                        <a href="#" data-ajax-anchor="handleConfirmDeleteMember('@sEleito.MembroId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </li>
+                        }
+
+                        foreach (var sIndicado in Model.CipasGetResult.Membros.Where(m => m.Funcao == RestClients.Cipas.Cipas.FuncaoMembro.SuplenteIndicado))
+                        {
+                            var sIndicadoDisplayAs = !string.IsNullOrWhiteSpace(sIndicado.NomeCompleto)
+                                ? sIndicado.NomeCompleto
+                                : sIndicado.UserName;
+
+                            <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                                <b>@sIndicadoDisplayAs</b>
+
+                                <div class="pull-right action-buttons" style="margin-top: -2px">
+                                    <span class="label label-primary" style="font-size: 14px; padding: 0px 5px 1px 5px; margin-right: 8px">@RestClients.Cipas.Cipas.FuncaoMembro.SuplenteIndicado.GetDisplayAs()</span>
+
+                                    @if (userPrincipalBuilder.HasEditorRights())
+                                    {
+                                        <a href="#" data-ajax-anchor="handleConfirmDeleteMember('@sIndicado.MembroId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </li>
+                        }
+
+                        foreach (var designado in Model.CipasGetResult.Membros.Where(m => m.Funcao == RestClients.Cipas.Cipas.FuncaoMembro.Designado))
+                        {
+                            var designadoDisplayAs = !string.IsNullOrWhiteSpace(designado.NomeCompleto)
+                                ? designado.NomeCompleto
+                                : designado.UserName;
+
+                            <li style="padding: 10px 15px; border-left: 3px solid transparent">
+                                <b>@designadoDisplayAs</b>
+
+                                <div class="pull-right action-buttons" style="margin-top: -2px">
+                                    <span class="label label-info" style="font-size: 14px; padding: 0px 5px 1px 5px; margin-right: 8px">@RestClients.Cipas.Cipas.FuncaoMembro.Designado.GetDisplayAs()</span>
+
+                                    @if (userPrincipalBuilder.HasEditorRights())
+                                    {
+                                        <a href="#" data-ajax-anchor="handleConfirmDeleteMember('@designado.MembroId')" class="btn btn-box-tool" data-toggle="tooltip" title="Remover">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        handleConfirmAlternarStatusAtividade = function () {
+            confirmOperation("Você está alterando o status de atividade desta cipa.", function () {
+                makeAjaxRequestWithPace("divCipaHeader", "?handler=AlternarStatusDeAtividade", "POST", {
+                    cipaId: $("[data-cipaid]").data("cipaid")
+                }, function () {
+                    location.reload();
+                });
+            });
+        };
+
+        handleConfirmDeleteEstabelecimento = function (estabelecimentoId) {
+            confirmOperation("Você está removendo um estabelecimento desta cipa.", function () {
+                makeAjaxRequestWithPace("divEstabelecimentos", "/Cipas/GerenciarEstabelecimentos?handler=Delete", "POST", {
+                    cipaId: $("[data-cipaid]").data("cipaid"),
+                    estabelecimentoId: estabelecimentoId
+                }, function () {
+                    location.reload();
+                });
+            });
+        };
+
+        handleConfirmDeleteMember = function (membroId) {
+            confirmOperation("Você está removendo um membro desta cipa.", function () {
+                makeAjaxRequestWithPace("divMembros", "/Cipas/GerenciarMembros?handler=Delete", "POST", {
+                    cipaId: $("[data-cipaid]").data("cipaid"),
+                    membroId: membroId
+                }, function () {
+                    location.reload();
+                });
+            });
+        };
+    </script>
+}

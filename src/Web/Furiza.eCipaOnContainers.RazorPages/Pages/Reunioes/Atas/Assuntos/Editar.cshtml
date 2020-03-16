@@ -1,0 +1,56 @@
+﻿@page "{assuntoId}"
+@model EditarModel
+@{
+    ViewData["Title"] = "Reuniões > Atas > Assuntos > Editar";
+}
+
+<div class="box blockableDiv">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input asp-for="ReuniaoId" type="hidden" value="@Model.ReuniaoId" />
+        <input asp-for="AtaId" type="hidden" value="@Model.AtaId" />
+        <input asp-for="AssuntoId" type="hidden" value="@Model.AssuntoId" />
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group">
+                        <select asp-for="ReunioesAtasAssuntosPut.ClassificacaoDaInformacao" class="form-control select2" data-placeholder="Classificação da Informação">
+                            <option value="0">@Furiza.eCipaOnContainers.RazorPages.RestClients.Cipas.ClassificacaoDaInformacao.Público.GetDisplayAs()</option>
+                        </select>
+                        <span asp-validation-for="ReunioesAtasAssuntosPut.ClassificacaoDaInformacao" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3">
+                    <div class="form-group">
+                        <select asp-for="ReunioesAtasAssuntosPut.Tipo" asp-items="Html.GetEnumSelectList<Furiza.eCipaOnContainers.RazorPages.RestClients.Cipas.Reunioes.TipoAssunto>()" class="form-control select2" data-placeholder="Tipo do Assunto">
+                            <option></option>
+                        </select>
+                        <span asp-validation-for="ReunioesAtasAssuntosPut.Tipo" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6">
+                    <div class="form-group has-feedback">
+                        <input asp-for="ReunioesAtasAssuntosPut.Keywords" type="text" class="form-control" placeholder="Keywords">
+                        <span class="glyphicon glyphicon-tags form-control-feedback"></span>
+                        <span asp-validation-for="ReunioesAtasAssuntosPut.Keywords" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <textarea rows="3" asp-for="ReunioesAtasAssuntosPut.Descricao" type="text" class="form-control" placeholder="Descrição"></textarea>
+                        <span asp-validation-for="ReunioesAtasAssuntosPut.Descricao" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12">
+                    <button class="btn btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                        <i class="fa fa-check"></i>
+                        Concluir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

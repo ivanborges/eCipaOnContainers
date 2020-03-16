@@ -1,0 +1,54 @@
+﻿@model Furiza.eCipaOnContainers.RazorPages.RestClients.Cipas.Reunioes.ReunioesGetAtasParticipantesConsentsResult
+
+@if (Model.Consents == null)
+{
+    <partial name="_NenhumaOcorrenciaParaExibicaoPartial" />
+}
+else
+{
+    <div>
+        <ul class="timeline timeline-inverse">
+            <li class="time-label">
+                <span class="bg-gray">
+                    Consents
+                </span>
+            </li>
+
+            @foreach (var consent in Model.Consents)
+            {
+                var consentClass = consent.Value.HasValue && consent.Value.Value
+                    ? "green"
+                    : "red";
+
+                var consentIcon = consent.Value.HasValue && consent.Value.Value
+                    ? "check"
+                    : "times";
+
+                var consentLabel = consent.Value.HasValue && consent.Value.Value
+                    ? "Consent favorável"
+                    : "Consent desfavorável";
+
+                <li>
+                    <i class="fa fa-@consentIcon-circle bg-@consentClass"></i>
+
+                    <div class="timeline-item">
+                        <span class="time"><i class="fa fa-clock-o"></i> @consent.CreationDate.Value.ToLocalTime()</span>
+
+                        <h3 class="timeline-header"><b>@consentLabel</b></h3>
+
+                        @if (!string.IsNullOrWhiteSpace(consent.Justificativa))
+                        {
+                            <div class="timeline-body">
+                                @consent.Justificativa
+                            </div>
+                        }
+                    </div>
+                </li>
+            }
+
+            <li>
+                <i class="fa fa-clock-o bg-gray"></i>
+            </li>
+        </ul>
+    </div>
+}

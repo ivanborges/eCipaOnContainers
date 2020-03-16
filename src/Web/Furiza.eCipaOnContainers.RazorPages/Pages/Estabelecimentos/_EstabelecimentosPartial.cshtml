@@ -1,0 +1,56 @@
+﻿@model Furiza.eCipaOnContainers.RazorPages.RestClients.Organizacoes.Estabelecimentos.EstabelecimentosGetManyResult
+
+@if (Model == null || Model.Estabelecimentos == null || !Model.Estabelecimentos.Any())
+{
+    <partial name="_NenhumaOcorrenciaParaExibicaoPartial" />
+}
+else
+{
+    <div class="box box-widget">
+        <div class="box-body">
+            <table id="tableResult" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nome</th>
+                        <th class="hidden-xs hidden-sm" style="width: 80px">Status</th>
+                        <th class="hidden-xs hidden-sm hidden-md" style="width: 125px">Data de Criação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var estabelecimento in Model.Estabelecimentos)
+                    {
+                        <tr>
+                            <td><a asp-page="/Estabelecimentos/Detalhar" asp-route-id="@estabelecimento.Id">@estabelecimento.Codigo</a></td>
+                            <td>@estabelecimento.Nome</td>
+                            
+                            @{ 
+                                var corStatusFundo = string.Empty;
+                                var corStatusLetra = string.Empty;
+
+                                if (estabelecimento.Status == RestClients.Organizacoes.StatusAtividade.Ativo)
+                                {
+                                    corStatusFundo = "background-color: #00a65a;";
+                                    corStatusLetra = "color: #ffffff;";
+                                }
+                                else
+                                {
+                                    corStatusFundo = "background-color: #f39c12;";
+                                    corStatusLetra = "color: #ffffff;";
+                                }
+                            }
+
+                            <td class="hidden-xs hidden-sm" style="vertical-align: middle; text-align: center; @corStatusFundo">
+                                <span style="font-weight: 600; @corStatusLetra">
+                                    @estabelecimento.Status
+                                </span>
+                            </td>
+
+                            <td class="hidden-xs hidden-sm hidden-md">@estabelecimento.CreationDate?.ToLocalTime()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

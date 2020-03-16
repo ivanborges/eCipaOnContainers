@@ -1,0 +1,41 @@
+﻿@page "{id}"
+@model EditarModel
+@{
+    ViewData["Title"] = "Cipas > Editar";
+}
+
+<div class="box blockableDiv">
+    <form method="post" data-ajax="true" data-ajax-method="post" data-ajax-begin="blockDivForAjaxRequest()" data-ajax-complete="unblockDivForAjaxRequest()" data-ajax-success="handleRedirectInAjaxRequest" data-ajax-failure="handleUserInteractionInAjaxFailure">
+        <input asp-for="CipaId" type="hidden" value="@Model.CipaId" />
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6">
+                    <div class="form-group">
+                        <div class="input-group date">
+                            <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                            <input asp-for="CipasPut.InicioDoMandato" value="@Model.CipasPut.InicioDoMandato.Value.ToString("dd/MM/yyyy")" type="text" class="form-control pull-right datepicker" placeholder="Início do Mandato">
+                        </div>
+                        <span asp-validation-for="CipasPut.InicioDoMandato" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6">
+                    <div class="form-group">
+                        <div class="input-group date">
+                            <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                            <input asp-for="CipasPut.TerminoDoMandato" value="@Model.CipasPut.TerminoDoMandato.Value.ToString("dd/MM/yyyy")" type="text" class="form-control pull-right datepicker" placeholder="Término do Mandato">
+                        </div>
+                        <span asp-validation-for="CipasPut.TerminoDoMandato" style="font-size: 10px; color: #a94442;"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-footer">
+            <button class="btn btn-default btn-block" type="submit" data-submit-ajaxform-pace>
+                <i class="fa fa-check"></i>
+                Concluir
+            </button>
+        </div>
+    </form>
+</div>
